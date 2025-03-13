@@ -46,7 +46,7 @@ export const GraphSearchInput = ({
 }) => {
   const graph = useGraphStore.use.sigmaGraph()
 
-  const searchEngine = useMemo(() => {
+  const search = useMemo(() => {
     if (lastGraph.graph == graph) {
       return lastGraph.searchEngine
     }
@@ -83,9 +83,9 @@ export const GraphSearchInput = ({
   const loadOptions = useCallback(
     async (query?: string): Promise<OptionItem[]> => {
       if (onFocus) onFocus(null)
-      if (!query || !searchEngine) return []
-      const result: OptionItem[] = searchEngine.search(query).map((r) => ({
-        id: r.id,
+      if (!query || !search) return []
+      const result: OptionItem[] = search.search(query).map((result) => ({
+        id: result.id,
         type: 'nodes'
       }))
 
@@ -101,7 +101,7 @@ export const GraphSearchInput = ({
           }
         ]
     },
-    [searchEngine, onFocus]
+    [search, onFocus]
   )
 
   return (

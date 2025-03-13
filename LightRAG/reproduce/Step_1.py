@@ -1,10 +1,8 @@
 import os
 import json
 import time
-import asyncio
 
 from lightrag import LightRAG
-from lightrag.kg.shared_storage import initialize_pipeline_status
 
 
 def insert_text(rag, file_path):
@@ -31,21 +29,6 @@ WORKING_DIR = f"../{cls}"
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
+rag = LightRAG(working_dir=WORKING_DIR)
 
-async def initialize_rag():
-    rag = LightRAG(working_dir=WORKING_DIR)
-
-    await rag.initialize_storages()
-    await initialize_pipeline_status()
-
-    return rag
-
-
-def main():
-    # Initialize RAG instance
-    rag = asyncio.run(initialize_rag())
-    insert_text(rag, f"../datasets/unique_contexts/{cls}_unique_contexts.json")
-
-
-if __name__ == "__main__":
-    main()
+insert_text(rag, f"../datasets/unique_contexts/{cls}_unique_contexts.json")

@@ -26,10 +26,8 @@ const GraphControl = ({ disableHoverEffect }: { disableHoverEffect?: boolean }) 
   const registerEvents = useRegisterEvents<NodeType, EdgeType>()
   const setSettings = useSetSettings<NodeType, EdgeType>()
   const loadGraph = useLoadGraph<NodeType, EdgeType>()
-
-  const maxIterations = useSettingsStore.use.graphLayoutMaxIterations()
   const { assign: assignLayout } = useLayoutForceAtlas2({
-    iterations: maxIterations
+    iterations: 20
   })
 
   const { theme } = useTheme()
@@ -40,21 +38,18 @@ const GraphControl = ({ disableHoverEffect }: { disableHoverEffect?: boolean }) 
   const focusedEdge = useGraphStore.use.focusedEdge()
 
   /**
-   * When component mount or maxIterations changes
-   * => load the graph and apply layout
+   * When component mount
+   * => load the graph
    */
   useEffect(() => {
     // Create & load the graph
     const graph = lightrageGraph()
     loadGraph(graph)
-    assignLayout()
-  }, [assignLayout, loadGraph, lightrageGraph, maxIterations])
+    if (!(graph as any).__force_applied) {
+      assignLayout()
+      Object.assign(graph, { __force_applied: true })
+    }
 
-  /**
-   * When component mount
-   * => register events
-   */
-  useEffect(() => {
     const { setFocusedNode, setSelectedNode, setFocusedEdge, setSelectedEdge, clearSelection } =
       useGraphStore.getState()
 
@@ -90,7 +85,7 @@ const GraphControl = ({ disableHoverEffect }: { disableHoverEffect?: boolean }) 
       },
       clickStage: () => clearSelection()
     })
-  }, [registerEvents])
+  }, [assignLayout, loadGraph, registerEvents, lightrageGraph])
 
   /**
    * When component mount or hovered node change

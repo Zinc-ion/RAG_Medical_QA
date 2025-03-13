@@ -6,7 +6,6 @@ import io
 import csv
 import json
 import logging
-import logging.handlers
 import os
 import re
 from dataclasses import dataclass
@@ -57,113 +56,6 @@ def set_verbose_debug(enabled: bool):
     VERBOSE_DEBUG = enabled
 
 
-statistic_data = {"llm_call": 0, "llm_cache": 0, "embed_call": 0}
-
-# Initialize logger
-logger = logging.getLogger("lightrag")
-logger.propagate = False  # prevent log message send to root loggger
-# Let the main application configure the handlers
-logger.setLevel(logging.INFO)
-
-# Set httpx logging level to WARNING
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-
-class LightragPathFilter(logging.Filter):
-    """Filter for lightrag logger to filter out frequent path access logs"""
-
-    def __init__(self):
-        super().__init__()
-        # Define paths to be filtered
-        self.filtered_paths = ["/documents", "/health", "/webui/"]
-
-    def filter(self, record):
-        try:
-            # Check if record has the required attributes for an access log
-            if not hasattr(record, "args") or not isinstance(record.args, tuple):
-                return True
-            if len(record.args) < 5:
-                return True
-
-            # Extract method, path and status from the record args
-            method = record.args[1]
-            path = record.args[2]
-            status = record.args[4]
-
-            # Filter out successful GET requests to filtered paths
-            if (
-                method == "GET"
-                and (status == 200 or status == 304)
-                and path in self.filtered_paths
-            ):
-                return False
-
-            return True
-        except Exception:
-            # In case of any error, let the message through
-            return True
-
-
-def setup_logger(
-    logger_name: str,
-    level: str = "INFO",
-    add_filter: bool = False,
-    log_file_path: str = None,
-):
-    """Set up a logger with console and file handlers
-
-    Args:
-        logger_name: Name of the logger to set up
-        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        add_filter: Whether to add LightragPathFilter to the logger
-        log_file_path: Path to the log file. If None, will use current directory/lightrag.log
-    """
-    # Configure formatters
-    detailed_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    simple_formatter = logging.Formatter("%(levelname)s: %(message)s")
-
-    # Get log file path
-    if log_file_path is None:
-        log_dir = os.getenv("LOG_DIR", os.getcwd())
-        log_file_path = os.path.abspath(os.path.join(log_dir, "lightrag.log"))
-
-    # Ensure log directory exists
-    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
-
-    # Get log file max size and backup count from environment variables
-    log_max_bytes = int(os.getenv("LOG_MAX_BYTES", 10485760))  # Default 10MB
-    log_backup_count = int(os.getenv("LOG_BACKUP_COUNT", 5))  # Default 5 backups
-
-    logger_instance = logging.getLogger(logger_name)
-    logger_instance.setLevel(level)
-    logger_instance.handlers = []  # Clear existing handlers
-    logger_instance.propagate = False
-
-    # Add console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(simple_formatter)
-    console_handler.setLevel(level)
-    logger_instance.addHandler(console_handler)
-
-    # Add file handler
-    file_handler = logging.handlers.RotatingFileHandler(
-        filename=log_file_path,
-        maxBytes=log_max_bytes,
-        backupCount=log_backup_count,
-        encoding="utf-8",
-    )
-    file_handler.setFormatter(detailed_formatter)
-    file_handler.setLevel(level)
-    logger_instance.addHandler(file_handler)
-
-    # Add path filter if requested
-    if add_filter:
-        path_filter = LightragPathFilter()
-        logger_instance.addFilter(path_filter)
-
-
 class UnlimitedSemaphore:
     """A context manager that allows unlimited access."""
 
@@ -175,6 +67,34 @@ class UnlimitedSemaphore:
 
 
 ENCODER = None
+
+statistic_data = {"llm_call": 0, "llm_cache": 0, "embed_call": 0}
+
+logger = logging.getLogger("lightrag")
+
+# Set httpx logging level to WARNING
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+def set_logger(log_file: str, level: int = logging.DEBUG):
+    """Set up file logging with the specified level.
+
+    Args:
+        log_file: Path to the log file
+        level: Logging level (e.g. logging.DEBUG, logging.INFO)
+    """
+    logger.setLevel(level)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(level)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+
+    if not logger.handlers:
+        logger.addHandler(file_handler)
 
 
 @dataclass
@@ -633,15 +553,15 @@ async def handle_cache(
     prompt,
     mode="default",
     cache_type=None,
+    force_llm_cache=False,
 ):
     """Generic cache handling function"""
-    if hashing_kv is None:
+    if hashing_kv is None or not (
+        force_llm_cache or hashing_kv.global_config.get("enable_llm_cache")
+    ):
         return None, None, None, None
 
-    if mode != "default":  # handle cache for all type of query
-        if not hashing_kv.global_config.get("enable_llm_cache"):
-            return None, None, None, None
-
+    if mode != "default":
         # Get embedding cache configuration
         embedding_cache_config = hashing_kv.global_config.get(
             "embedding_cache_config",
@@ -651,7 +571,8 @@ async def handle_cache(
         use_llm_check = embedding_cache_config.get("use_llm_check", False)
 
         quantized = min_val = max_val = None
-        if is_embedding_cache_enabled:  # Use embedding simularity to match cache
+        if is_embedding_cache_enabled:
+            # Use embedding cache
             current_embedding = await hashing_kv.embedding_func([prompt])
             llm_model_func = hashing_kv.global_config.get("llm_model_func")
             quantized, min_val, max_val = quantize_embedding(current_embedding[0])
@@ -666,29 +587,24 @@ async def handle_cache(
                 cache_type=cache_type,
             )
             if best_cached_response is not None:
-                logger.debug(f"Embedding cached hit(mode:{mode} type:{cache_type})")
+                logger.info(f"Embedding cached hit(mode:{mode} type:{cache_type})")
                 return best_cached_response, None, None, None
             else:
                 # if caching keyword embedding is enabled, return the quantized embedding for saving it latter
-                logger.debug(f"Embedding cached missed(mode:{mode} type:{cache_type})")
+                logger.info(f"Embedding cached missed(mode:{mode} type:{cache_type})")
                 return None, quantized, min_val, max_val
 
-    else:  # handle cache for entity extraction
-        if not hashing_kv.global_config.get("enable_llm_cache_for_entity_extract"):
-            return None, None, None, None
-
-    # Here is the conditions of code reaching this point:
-    #     1. All query mode: enable_llm_cache is True and embedding simularity is not enabled
-    #     2. Entity extract: enable_llm_cache_for_entity_extract is True
+    # For default mode or is_embedding_cache_enabled is False, use regular cache
+    # default mode is for extract_entities or naive query
     if exists_func(hashing_kv, "get_by_mode_and_id"):
         mode_cache = await hashing_kv.get_by_mode_and_id(mode, args_hash) or {}
     else:
         mode_cache = await hashing_kv.get_by_id(mode) or {}
     if args_hash in mode_cache:
-        logger.debug(f"Non-embedding cached hit(mode:{mode} type:{cache_type})")
+        logger.info(f"Non-embedding cached hit(mode:{mode} type:{cache_type})")
         return mode_cache[args_hash]["return"], None, None, None
 
-    logger.debug(f"Non-embedding cached missed(mode:{mode} type:{cache_type})")
+    logger.info(f"Non-embedding cached missed(mode:{mode} type:{cache_type})")
     return None, None, None, None
 
 
@@ -705,22 +621,9 @@ class CacheData:
 
 
 async def save_to_cache(hashing_kv, cache_data: CacheData):
-    """Save data to cache, with improved handling for streaming responses and duplicate content.
-
-    Args:
-        hashing_kv: The key-value storage for caching
-        cache_data: The cache data to save
-    """
-    # Skip if storage is None or content is a streaming response
-    if hashing_kv is None or not cache_data.content:
+    if hashing_kv is None or hasattr(cache_data.content, "__aiter__"):
         return
 
-    # If content is a streaming response, don't cache it
-    if hasattr(cache_data.content, "__aiter__"):
-        logger.debug("Streaming response detected, skipping cache")
-        return
-
-    # Get existing cache data
     if exists_func(hashing_kv, "get_by_mode_and_id"):
         mode_cache = (
             await hashing_kv.get_by_mode_and_id(cache_data.mode, cache_data.args_hash)
@@ -729,16 +632,6 @@ async def save_to_cache(hashing_kv, cache_data: CacheData):
     else:
         mode_cache = await hashing_kv.get_by_id(cache_data.mode) or {}
 
-    # Check if we already have identical content cached
-    if cache_data.args_hash in mode_cache:
-        existing_content = mode_cache[cache_data.args_hash].get("return")
-        if existing_content == cache_data.content:
-            logger.info(
-                f"Cache content unchanged for {cache_data.args_hash}, skipping update"
-            )
-            return
-
-    # Update cache with new content
     mode_cache[cache_data.args_hash] = {
         "return": cache_data.content,
         "cache_type": cache_data.cache_type,
@@ -753,7 +646,6 @@ async def save_to_cache(hashing_kv, cache_data: CacheData):
         "original_prompt": cache_data.prompt,
     }
 
-    # Only upsert if there's actual new content
     await hashing_kv.upsert({cache_data.mode: mode_cache})
 
 
@@ -890,52 +782,3 @@ def lazy_external_import(module_name: str, class_name: str) -> Callable[..., Any
         return cls(*args, **kwargs)
 
     return import_class
-
-
-def get_content_summary(content: str, max_length: int = 100) -> str:
-    """Get summary of document content
-
-    Args:
-        content: Original document content
-        max_length: Maximum length of summary
-
-    Returns:
-        Truncated content with ellipsis if needed
-    """
-    content = content.strip()
-    if len(content) <= max_length:
-        return content
-    return content[:max_length] + "..."
-
-
-def clean_text(text: str) -> str:
-    """Clean text by removing null bytes (0x00) and whitespace
-
-    Args:
-        text: Input text to clean
-
-    Returns:
-        Cleaned text
-    """
-    return text.strip().replace("\x00", "")
-
-
-def check_storage_env_vars(storage_name: str) -> None:
-    """Check if all required environment variables for storage implementation exist
-
-    Args:
-        storage_name: Storage implementation name
-
-    Raises:
-        ValueError: If required environment variables are missing
-    """
-    from lightrag.kg import STORAGE_ENV_REQUIREMENTS
-
-    required_vars = STORAGE_ENV_REQUIREMENTS.get(storage_name, [])
-    missing_vars = [var for var in required_vars if var not in os.environ]
-
-    if missing_vars:
-        raise ValueError(
-            f"Storage implementation '{storage_name}' requires the following "
-            f"environment variables: {', '.join(missing_vars)}"
-        )

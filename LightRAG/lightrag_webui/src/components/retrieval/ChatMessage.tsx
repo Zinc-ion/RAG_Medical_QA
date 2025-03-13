@@ -2,7 +2,6 @@ import { ReactNode, useCallback } from 'react'
 import { Message } from '@/api/lightrag'
 import useTheme from '@/hooks/useTheme'
 import Button from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -102,10 +101,7 @@ const CodeHighlight = ({ className, children, node, ...props }: CodeHighlightPro
       {String(children).replace(/\n$/, '')}
     </SyntaxHighlighter>
   ) : (
-    <code
-      className={cn(className, 'mx-1 rounded-xs bg-black/10 px-1 dark:bg-gray-100/20')}
-      {...props}
-    >
+    <code className={className} {...props}>
       {children}
     </code>
   )

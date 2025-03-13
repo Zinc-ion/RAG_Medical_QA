@@ -6,19 +6,15 @@ import os
 import argparse
 from typing import Optional
 import sys
-import logging
 from ascii_colors import ASCIIColors
 from lightrag.api import __api_version__
-from fastapi import HTTPException, Security, Depends, Request
+from fastapi import HTTPException, Security
 from dotenv import load_dotenv
-from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from fastapi.security import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
-from .auth import auth_handler
 
 # Load environment variables
 load_dotenv(override=True)
-
-global_args = {"main_args": None}
 
 
 class OllamaServerInfos:
@@ -32,24 +28,6 @@ class OllamaServerInfos:
 
 
 ollama_server_infos = OllamaServerInfos()
-
-
-def get_auth_dependency():
-    whitelist = os.getenv("WHITELIST_PATHS", "").split(",")
-
-    async def dependency(
-        request: Request,
-        token: str = Depends(OAuth2PasswordBearer(tokenUrl="login", auto_error=False)),
-    ):
-        if request.url.path in whitelist:
-            return
-
-        if not (os.getenv("AUTH_USERNAME") and os.getenv("AUTH_PASSWORD")):
-            return
-
-        auth_handler.validate_token(token)
-
-    return dependency
 
 
 def get_api_key_dependency(api_key: Optional[str]):
@@ -132,12 +110,9 @@ def get_env_value(env_key: str, default: any, value_type: type = str) -> any:
         return default
 
 
-def parse_args(is_uvicorn_mode: bool = False) -> argparse.Namespace:
+def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments with environment variable fallback
-
-    Args:
-        is_uvicorn_mode: Whether running under uvicorn mode
 
     Returns:
         argparse.Namespace: Parsed arguments
@@ -285,14 +260,6 @@ def parse_args(is_uvicorn_mode: bool = False) -> argparse.Namespace:
         help="Enable automatic scanning when the program starts",
     )
 
-    # Server workers configuration
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=get_env_value("WORKERS", 1, int),
-        help="Number of worker processes (default: from env or 1)",
-    )
-
     # LLM and embedding bindings
     parser.add_argument(
         "--llm-binding",
@@ -310,15 +277,6 @@ def parse_args(is_uvicorn_mode: bool = False) -> argparse.Namespace:
     )
 
     args = parser.parse_args()
-
-    # If in uvicorn mode and workers > 1, force it to 1 and log warning
-    if is_uvicorn_mode and args.workers > 1:
-        original_workers = args.workers
-        args.workers = 1
-        # Log warning directly here
-        logging.warning(
-            f"In uvicorn mode, workers parameter was set to {original_workers}. Forcing workers=1"
-        )
 
     # convert relative path to absolute path
     args.working_dir = os.path.abspath(args.working_dir)
@@ -362,17 +320,8 @@ def parse_args(is_uvicorn_mode: bool = False) -> argparse.Namespace:
     args.chunk_size = get_env_value("CHUNK_SIZE", 1200, int)
     args.chunk_overlap_size = get_env_value("CHUNK_OVERLAP_SIZE", 100, int)
 
-    # Inject LLM cache configuration
-    args.enable_llm_cache_for_extract = get_env_value(
-        "ENABLE_LLM_CACHE_FOR_EXTRACT", False, bool
-    )
-
-    # Select Document loading tool (DOCLING, DEFAULT)
-    args.document_loading_engine = get_env_value("DOCUMENT_LOADING_ENGINE", "DEFAULT")
-
     ollama_server_infos.LIGHTRAG_MODEL = args.simulated_model_name
 
-    global_args["main_args"] = args
     return args
 
 
@@ -397,27 +346,17 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     ASCIIColors.yellow(f"{args.host}")
     ASCIIColors.white("    ├─ Port: ", end="")
     ASCIIColors.yellow(f"{args.port}")
-    ASCIIColors.white("    ├─ Workers: ", end="")
-    ASCIIColors.yellow(f"{args.workers}")
     ASCIIColors.white("    ├─ CORS Origins: ", end="")
     ASCIIColors.yellow(f"{os.getenv('CORS_ORIGINS', '*')}")
     ASCIIColors.white("    ├─ SSL Enabled: ", end="")
     ASCIIColors.yellow(f"{args.ssl}")
+    ASCIIColors.white("    └─ API Key: ", end="")
+    ASCIIColors.yellow("Set" if args.key else "Not Set")
     if args.ssl:
         ASCIIColors.white("    ├─ SSL Cert: ", end="")
         ASCIIColors.yellow(f"{args.ssl_certfile}")
-        ASCIIColors.white("    ├─ SSL Key: ", end="")
+        ASCIIColors.white("    └─ SSL Key: ", end="")
         ASCIIColors.yellow(f"{args.ssl_keyfile}")
-    ASCIIColors.white("    ├─ Ollama Emulating Model: ", end="")
-    ASCIIColors.yellow(f"{ollama_server_infos.LIGHTRAG_MODEL}")
-    ASCIIColors.white("    ├─ Log Level: ", end="")
-    ASCIIColors.yellow(f"{args.log_level}")
-    ASCIIColors.white("    ├─ Verbose Debug: ", end="")
-    ASCIIColors.yellow(f"{args.verbose}")
-    ASCIIColors.white("    ├─ Timeout: ", end="")
-    ASCIIColors.yellow(f"{args.timeout if args.timeout else 'None (infinite)'}")
-    ASCIIColors.white("    └─ API Key: ", end="")
-    ASCIIColors.yellow("Set" if args.key else "Not Set")
 
     # Directory Configuration
     ASCIIColors.magenta("\n📂 Directory Configuration:")
@@ -462,10 +401,8 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     ASCIIColors.yellow(f"{args.history_turns}")
     ASCIIColors.white("    ├─ Cosine Threshold: ", end="")
     ASCIIColors.yellow(f"{args.cosine_threshold}")
-    ASCIIColors.white("    ├─ Top-K: ", end="")
+    ASCIIColors.white("    └─ Top-K: ", end="")
     ASCIIColors.yellow(f"{args.top_k}")
-    ASCIIColors.white("    └─ LLM Cache for Extraction Enabled: ", end="")
-    ASCIIColors.yellow(f"{args.enable_llm_cache_for_extract}")
 
     # System Configuration
     ASCIIColors.magenta("\n💾 Storage Configuration:")
@@ -477,6 +414,16 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     ASCIIColors.yellow(f"{args.graph_storage}")
     ASCIIColors.white("    └─ Document Status Storage: ", end="")
     ASCIIColors.yellow(f"{args.doc_status_storage}")
+
+    ASCIIColors.magenta("\n🛠️ System Configuration:")
+    ASCIIColors.white("    ├─ Ollama Emulating Model: ", end="")
+    ASCIIColors.yellow(f"{ollama_server_infos.LIGHTRAG_MODEL}")
+    ASCIIColors.white("    ├─ Log Level: ", end="")
+    ASCIIColors.yellow(f"{args.log_level}")
+    ASCIIColors.white("    ├─ Verbose Debug: ", end="")
+    ASCIIColors.yellow(f"{args.verbose}")
+    ASCIIColors.white("    └─ Timeout: ", end="")
+    ASCIIColors.yellow(f"{args.timeout if args.timeout else 'None (infinite)'}")
 
     # Server Status
     ASCIIColors.green("\n✨ Server starting up...\n")
@@ -531,6 +478,7 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     ASCIIColors.cyan("""    3. Basic Operations:
        - POST /upload_document: Upload new documents to RAG
        - POST /query: Query your document collection
+       - GET /collections: List available collections
 
     4. Monitor the server:
        - Check server logs for detailed operation information

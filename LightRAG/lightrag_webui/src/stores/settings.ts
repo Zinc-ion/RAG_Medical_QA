@@ -8,7 +8,9 @@ type Theme = 'dark' | 'light' | 'system'
 type Tab = 'documents' | 'knowledge-graph' | 'retrieval' | 'api'
 
 interface SettingsState {
-  // Graph viewer settings
+  theme: Theme
+  setTheme: (theme: Theme) => void
+
   showPropertyPanel: boolean
   showNodeSearchBar: boolean
 
@@ -19,38 +21,23 @@ interface SettingsState {
   enableHideUnselectedEdges: boolean
   enableEdgeEvents: boolean
 
-  graphQueryMaxDepth: number
-  setGraphQueryMaxDepth: (depth: number) => void
-
-  graphMinDegree: number
-  setGraphMinDegree: (degree: number) => void
-
-  graphLayoutMaxIterations: number
-  setGraphLayoutMaxIterations: (iterations: number) => void
-
-  // Retrieval settings
   queryLabel: string
   setQueryLabel: (queryLabel: string) => void
+
+  enableHealthCheck: boolean
+  setEnableHealthCheck: (enable: boolean) => void
+
+  apiKey: string | null
+  setApiKey: (key: string | null) => void
+
+  currentTab: Tab
+  setCurrentTab: (tab: Tab) => void
 
   retrievalHistory: Message[]
   setRetrievalHistory: (history: Message[]) => void
 
   querySettings: Omit<QueryRequest, 'query'>
   updateQuerySettings: (settings: Partial<QueryRequest>) => void
-
-  // Auth settings
-  apiKey: string | null
-  setApiKey: (key: string | null) => void
-
-  // App settings
-  theme: Theme
-  setTheme: (theme: Theme) => void
-
-  enableHealthCheck: boolean
-  setEnableHealthCheck: (enable: boolean) => void
-
-  currentTab: Tab
-  setCurrentTab: (tab: Tab) => void
 }
 
 const useSettingsStoreBase = create<SettingsState>()(
@@ -68,12 +55,7 @@ const useSettingsStoreBase = create<SettingsState>()(
       enableHideUnselectedEdges: true,
       enableEdgeEvents: false,
 
-      graphQueryMaxDepth: 3,
-      graphMinDegree: 0,
-      graphLayoutMaxIterations: 10,
-
       queryLabel: defaultQueryLabel,
-
       enableHealthCheck: true,
 
       apiKey: null,
@@ -99,19 +81,10 @@ const useSettingsStoreBase = create<SettingsState>()(
 
       setTheme: (theme: Theme) => set({ theme }),
 
-      setGraphLayoutMaxIterations: (iterations: number) =>
-        set({
-          graphLayoutMaxIterations: iterations
-        }),
-
       setQueryLabel: (queryLabel: string) =>
         set({
           queryLabel
         }),
-
-      setGraphQueryMaxDepth: (depth: number) => set({ graphQueryMaxDepth: depth }),
-
-      setGraphMinDegree: (degree: number) => set({ graphMinDegree: degree }),
 
       setEnableHealthCheck: (enable: boolean) => set({ enableHealthCheck: enable }),
 
@@ -129,7 +102,7 @@ const useSettingsStoreBase = create<SettingsState>()(
     {
       name: 'settings-storage',
       storage: createJSONStorage(() => localStorage),
-      version: 7,
+      version: 6,
       migrate: (state: any, version: number) => {
         if (version < 2) {
           state.showEdgeLabel = false
@@ -163,10 +136,6 @@ const useSettingsStoreBase = create<SettingsState>()(
             ll_keywords: []
           }
           state.retrievalHistory = []
-        }
-        if (version < 7) {
-          state.graphQueryMaxDepth = 3
-          state.graphLayoutMaxIterations = 10
         }
         return state
       }

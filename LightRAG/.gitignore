@@ -1,7 +1,4 @@
-/examples
-/assets
-/docs
-
+/doc
 
 # Python-related files
 __pycache__/
@@ -26,7 +23,6 @@ site/
 
 # Logs / Reports
 *.log
-*.log.*
 *.logfire
 *.coverage/
 log/
@@ -62,7 +58,7 @@ ignore_this.txt
 *.ignore.*
 
 # Project-specific files
-dickens*/
+dickens/
 book.txt
 lightrag-dev/
 gui/
