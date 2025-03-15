@@ -6,7 +6,7 @@ from lightrag.llm.siliconcloud import siliconcloud_embedding
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)

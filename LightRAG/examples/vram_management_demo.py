@@ -5,7 +5,7 @@ from lightrag.llm.ollama import ollama_model_complete, ollama_embed
 from lightrag.utils import EmbeddingFunc
 
 # Working directory and the directory path for text files
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 TEXT_FILES_DIR = "/llm/mt"
 
 # Create the working directory if it doesn't exist

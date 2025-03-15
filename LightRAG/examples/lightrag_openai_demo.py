@@ -3,7 +3,7 @@ import os
 from lightrag import LightRAG, QueryParam
 from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)

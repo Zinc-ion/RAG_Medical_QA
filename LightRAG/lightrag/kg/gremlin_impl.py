@@ -16,7 +16,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from lightrag.types import KnowledgeGraph
+from lightrag.custom_types import KnowledgeGraph
 from lightrag.utils import logger
 
 from ..base import BaseGraphStorage

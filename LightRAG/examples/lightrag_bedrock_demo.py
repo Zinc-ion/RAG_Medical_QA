@@ -11,7 +11,7 @@ from lightrag.utils import EmbeddingFunc
 
 logging.getLogger("aiobotocore").setLevel(logging.WARNING)
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 

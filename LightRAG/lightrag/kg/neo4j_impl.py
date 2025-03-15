@@ -17,7 +17,7 @@ from tenacity import (
 
 from ..utils import logger
 from ..base import BaseGraphStorage
-from ..types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
+from ..custom_types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
 import pipmaster as pm
 
 if not pm.is_installed("neo4j"):

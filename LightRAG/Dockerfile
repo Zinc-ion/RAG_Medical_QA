@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Copy only necessary files from builder
 COPY --from=builder /root/.local /root/.local
-COPY ./lightrag ./lightrag
+COPY lightrag ./lightrag
 COPY setup.py .
 
 RUN pip install .

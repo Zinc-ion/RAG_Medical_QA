@@ -47,7 +47,7 @@ from .utils import (
     logger,
     set_logger,
 )
-from .types import KnowledgeGraph
+from .custom_types import KnowledgeGraph
 from dotenv import load_dotenv
 
 # Load environment variables

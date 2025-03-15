@@ -8,7 +8,7 @@ from typing import Any, Union, final
 import numpy as np
 import configparser
 
-from lightrag.types import KnowledgeGraph
+from lightrag.custom_types import KnowledgeGraph
 
 from ..base import (
     BaseGraphStorage,

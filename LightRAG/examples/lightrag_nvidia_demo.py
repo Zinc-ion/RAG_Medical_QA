@@ -11,7 +11,7 @@ import numpy as np
 # for custom llm_model_func
 from lightrag.utils import locate_json_string_body_from_string
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)

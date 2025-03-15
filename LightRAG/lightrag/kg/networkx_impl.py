@@ -5,7 +5,7 @@ from typing import Any, final
 import numpy as np
 
 
-from lightrag.types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
+from lightrag.custom_types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
 from lightrag.utils import (
     logger,
 )

@@ -7,7 +7,7 @@ from lightrag import LightRAG, QueryParam
 from lightrag.llm import siliconcloud_embedding, openai_complete_if_cache
 from lightrag.utils import EmbeddingFunc
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 # We use SiliconCloud API to call LLM on Oracle Cloud
 # More docs here https://docs.siliconflow.cn/introduction
@@ -79,7 +79,7 @@ async def main():
         )
 
         # Extract and Insert into LightRAG storage
-        with open("./dickens/demo.txt", "r", encoding="utf-8") as f:
+        with open("../../dickens/demo.txt", "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
         # Perform search in different modes

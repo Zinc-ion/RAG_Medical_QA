@@ -6,7 +6,7 @@ from lightrag import LightRAG, QueryParam
 from lightrag.llm.ollama import ollama_model_complete, ollama_embed
 from lightrag.utils import EmbeddingFunc
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 

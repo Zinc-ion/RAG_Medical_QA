@@ -15,7 +15,7 @@ def retrieve_metadata():
     vars2find = ["__author__", "__version__", "__url__"]
     vars2readme = {}
     try:
-        with open("./lightrag/__init__.py") as f:
+        with open("lightrag/__init__.py") as f:
             for line in f.readlines():
                 for v in vars2find:
                     if line.startswith(v):
@@ -55,7 +55,7 @@ def read_requirements():
 def read_api_requirements():
     api_deps = []
     try:
-        with open("./lightrag/api/requirements.txt") as f:
+        with open("lightrag/api/requirements.txt") as f:
             api_deps = [line.strip() for line in f if line.strip()]
     except FileNotFoundError:
         print("Warning: API requirements.txt not found.")
@@ -65,7 +65,7 @@ def read_api_requirements():
 def read_extra_requirements():
     api_deps = []
     try:
-        with open("./lightrag/tools/lightrag_visualizer/requirements.txt") as f:
+        with open("lightrag/tools/lightrag_visualizer/requirements.txt") as f:
             api_deps = [line.strip() for line in f if line.strip()]
     except FileNotFoundError:
         print("Warning: API requirements.txt not found.")

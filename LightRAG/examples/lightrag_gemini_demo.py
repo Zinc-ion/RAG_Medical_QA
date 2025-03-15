@@ -12,7 +12,7 @@ from sentence_transformers import SentenceTransformer
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if os.path.exists(WORKING_DIR):
     import shutil

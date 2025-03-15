@@ -1079,6 +1079,7 @@ async def _get_node_data(
     logger.info(
         f"Query nodes: {query}, top_k: {query_param.top_k}, cosine: {entities_vdb.cosine_better_than_threshold}"
     )
+
     results = await entities_vdb.query(query, top_k=query_param.top_k)
     if not len(results):
         return "", "", ""

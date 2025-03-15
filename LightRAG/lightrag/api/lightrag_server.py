@@ -26,7 +26,7 @@ from .utils_api import (
     display_splash_screen,
 )
 from lightrag import LightRAG
-from lightrag.types import GPTKeywordExtractionFormat
+from lightrag.custom_types import GPTKeywordExtractionFormat
 from lightrag.api import __api_version__
 from lightrag.utils import EmbeddingFunc
 from lightrag.utils import logger

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, NamedTuple, Optional, Union, final
 import numpy as np
 import pipmaster as pm
-from lightrag.types import KnowledgeGraph
+from lightrag.custom_types import KnowledgeGraph
 
 from tenacity import (
     retry,

@@ -11,7 +11,7 @@ print(os.getcwd())
 script_directory = Path(__file__).resolve().parent.parent
 sys.path.append(os.path.abspath(script_directory))
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 # We use OpenAI compatible API to call LLM on Oracle Cloud
 # More docs here https://github.com/jin38324/OCI_GenAI_access_gateway

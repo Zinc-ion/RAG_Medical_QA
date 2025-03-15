@@ -16,7 +16,7 @@ from ..base import (
 )
 from ..namespace import NameSpace, is_namespace
 from ..utils import logger
-from ..types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
+from ..custom_types import KnowledgeGraph, KnowledgeGraphNode, KnowledgeGraphEdge
 import pipmaster as pm
 
 if not pm.is_installed("pymongo"):

@@ -28,45 +28,47 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from lightrag.utils import EmbeddingFunc
 
+
 # Initialize with direct OpenAI access
 async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
-    try:
-        # Initialize OpenAI if not in kwargs
-        if 'llm_instance' not in kwargs:
-            llm_instance = OpenAI(
-                model="gpt-4",
-                api_key="your-openai-key",
-                temperature=0.7,
-            )
-            kwargs['llm_instance'] = llm_instance
+   try:
+      # Initialize OpenAI if not in kwargs
+      if 'llm_instance' not in kwargs:
+         llm_instance = OpenAI(
+            model="gpt-4",
+            api_key="your-openai-key",
+            temperature=0.7,
+         )
+         kwargs['llm_instance'] = llm_instance
 
-        response = await llama_index_complete_if_cache(
-            kwargs['llm_instance'],
-            prompt,
-            system_prompt=system_prompt,
-            history_messages=history_messages,
-            **kwargs,
-        )
-        return response
-    except Exception as e:
-        logger.error(f"LLM request failed: {str(e)}")
-        raise
+      response = await llama_index_complete_if_cache(
+         kwargs['llm_instance'],
+         prompt,
+         system_prompt=system_prompt,
+         history_messages=history_messages,
+         **kwargs,
+      )
+      return response
+   except Exception as e:
+      logger.error(f"LLM request failed: {str(e)}")
+      raise
+
 
 # Initialize LightRAG with OpenAI
 rag = LightRAG(
-    working_dir="your/path",
-    llm_model_func=llm_model_func,
-    embedding_func=EmbeddingFunc(
-        embedding_dim=1536,
-        max_token_size=8192,
-        func=lambda texts: llama_index_embed(
-            texts,
-            embed_model=OpenAIEmbedding(
-                model="text-embedding-3-large",
-                api_key="your-openai-key"
-            )
-        ),
-    ),
+   working_dir="your/path",
+   llm_model_func=llm_model_func,
+   embedding_func=EmbeddingFunc(
+      embedding_dim=1536,
+      max_token_size=8192,
+      func=lambda texts: llama_index_embed(
+         texts,
+         embed_model=OpenAIEmbedding(
+            model="text-embedding-3-large",
+            api_key="your-openai-key"
+         )
+      ),
+   ),
 )
 ```
 
@@ -83,47 +85,49 @@ from llama_index.llms.litellm import LiteLLM
 from llama_index.embeddings.litellm import LiteLLMEmbedding
 from lightrag.utils import EmbeddingFunc
 
+
 # Initialize with LiteLLM proxy
 async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
-    try:
-        # Initialize LiteLLM if not in kwargs
-        if 'llm_instance' not in kwargs:
-            llm_instance = LiteLLM(
-                model=f"openai/{settings.LLM_MODEL}",  # Format: "provider/model_name"
-                api_base=settings.LITELLM_URL,
-                api_key=settings.LITELLM_KEY,
-                temperature=0.7,
-            )
-            kwargs['llm_instance'] = llm_instance
+   try:
+      # Initialize LiteLLM if not in kwargs
+      if 'llm_instance' not in kwargs:
+         llm_instance = LiteLLM(
+            model=f"openai/{settings.LLM_MODEL}",  # Format: "provider/model_name"
+            api_base=settings.LITELLM_URL,
+            api_key=settings.LITELLM_KEY,
+            temperature=0.7,
+         )
+         kwargs['llm_instance'] = llm_instance
 
-        response = await llama_index_complete_if_cache(
-            kwargs['llm_instance'],
-            prompt,
-            system_prompt=system_prompt,
-            history_messages=history_messages,
-            **kwargs,
-        )
-        return response
-    except Exception as e:
-        logger.error(f"LLM request failed: {str(e)}")
-        raise
+      response = await llama_index_complete_if_cache(
+         kwargs['llm_instance'],
+         prompt,
+         system_prompt=system_prompt,
+         history_messages=history_messages,
+         **kwargs,
+      )
+      return response
+   except Exception as e:
+      logger.error(f"LLM request failed: {str(e)}")
+      raise
+
 
 # Initialize LightRAG with LiteLLM
 rag = LightRAG(
-    working_dir="your/path",
-    llm_model_func=llm_model_func,
-    embedding_func=EmbeddingFunc(
-        embedding_dim=1536,
-        max_token_size=8192,
-        func=lambda texts: llama_index_embed(
-            texts,
-            embed_model=LiteLLMEmbedding(
-                model_name=f"openai/{settings.EMBEDDING_MODEL}",
-                api_base=settings.LITELLM_URL,
-                api_key=settings.LITELLM_KEY,
-            )
-        ),
-    ),
+   working_dir="your/path",
+   llm_model_func=llm_model_func,
+   embedding_func=EmbeddingFunc(
+      embedding_dim=1536,
+      max_token_size=8192,
+      func=lambda texts: llama_index_embed(
+         texts,
+         embed_model=LiteLLMEmbedding(
+            model_name=f"openai/{settings.EMBEDDING_MODEL}",
+            api_base=settings.LITELLM_URL,
+            api_key=settings.LITELLM_KEY,
+         )
+      ),
+   ),
 )
 ```
 

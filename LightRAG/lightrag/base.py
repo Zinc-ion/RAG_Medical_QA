@@ -13,7 +13,7 @@ from typing import (
 )
 import numpy as np
 from .utils import EmbeddingFunc
-from .types import KnowledgeGraph
+from .custom_types import KnowledgeGraph
 
 load_dotenv()
 

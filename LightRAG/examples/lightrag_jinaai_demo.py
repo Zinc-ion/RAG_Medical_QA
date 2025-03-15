@@ -11,7 +11,7 @@ async def embedding_func(texts: list[str]) -> np.ndarray:
     return await jina_embed(texts, api_key="YourJinaAPIKey")
 
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)

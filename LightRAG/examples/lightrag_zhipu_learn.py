@@ -2,12 +2,12 @@ import os
 import logging
 
 
-from lightrag import LightRAG, QueryParam
+from lightrag.lightrag import LightRAG, QueryParam
 from lightrag.llm.zhipu import zhipu_complete
-from lightrag.llm.ollama import ollama
+from lightrag.llm.ollama import ollama_embedding
 from lightrag.utils import EmbeddingFunc
 
-WORKING_DIR = "../../dickens"
+WORKING_DIR = "../dickens"
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -24,15 +24,20 @@ rag = LightRAG(
     llm_model_func=zhipu_complete,
     llm_model_name="glm-4-flashx",  # Using the most cost/performance balance model, but you can change it here.
     llm_model_max_async=4,
+    chunk_token_size=512,
     llm_model_max_token_size=32768,
     embedding_func=EmbeddingFunc(
-        embedding_dim=2048,  # Zhipu embedding-3 dimension
+        embedding_dim=1024,  # 注意一定要和模型的embedding_dim一致！！
         max_token_size=8192,
-        func=lambda texts: zhipu_embedding(texts),
+        func=lambda texts: ollama_embedding(
+            texts,
+            embed_model="quentinz/bge-large-zh-v1.5",
+            host="http://localhost:11434",
+                                            )
     ),
 )
 
-with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//chap02.txt", "r", encoding="utf-8") as f:
+with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap10.txt", "r", encoding="utf-8") as f:
     rag.insert(f.read())
 
 # # Perform naive search
@@ -52,5 +57,5 @@ with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc
 
 # Perform hybrid search
 print(
-    rag.query("文章的主要讲了些什么?", param=QueryParam(mode="hybrid"))
+    rag.query("预防心脏病的方法是什么?", param=QueryParam(mode="hybrid"))
 )

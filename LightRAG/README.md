@@ -115,15 +115,15 @@ rag = LightRAG(
 rag.insert("Your text")
 
 # Perform naive search
-mode="naive"
+mode = "naive"
 # Perform local search
-mode="local"
+mode = "local"
 # Perform global search
-mode="global"
+mode = "global"
 # Perform hybrid search
-mode="hybrid"
+mode = "hybrid"
 # Mix mode Integrates knowledge graph and vector retrieval.
-mode="mix"
+mode = "mix"
 
 rag.query(
     "What are the top themes in this story?",
@@ -249,7 +249,7 @@ from lightrag.utils import EmbeddingFunc
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=ollama_model_complete,  # Use Ollama model for text generation
-    llm_model_name='your_model_name', # Your model name
+    llm_model_name='your_model_name',  # Your model name
     # Use Ollama embedding function
     embedding_func=EmbeddingFunc(
         embedding_dim=768,
@@ -333,7 +333,7 @@ from llama_index.llms.openai import OpenAI
 rag = LightRAG(
     working_dir="your/path",
     llm_model_func=llama_index_complete_if_cache,  # LlamaIndex-compatible completion function
-    embedding_func=EmbeddingFunc(    # LlamaIndex-compatible embedding function
+    embedding_func=EmbeddingFunc(  # LlamaIndex-compatible embedding function
         embedding_dim=1536,
         max_token_size=8192,
         func=lambda texts: llama_index_embed(texts, embed_model=embed_model)
@@ -361,7 +361,8 @@ rag = LightRAG(working_dir=WORKING_DIR)
 # Create conversation history
 conversation_history = [
     {"role": "user", "content": "What is the main character's attitude towards Christmas?"},
-    {"role": "assistant", "content": "At the beginning of the story, Ebenezer Scrooge has a very negative attitude towards Christmas..."},
+    {"role": "assistant",
+     "content": "At the beginning of the story, Ebenezer Scrooge has a very negative attitude towards Christmas..."},
     {"role": "user", "content": "How does his attitude change?"}
 ]
 
@@ -816,7 +817,7 @@ import networkx as nx
 from pyvis.network import Network
 
 # Load the GraphML file
-G = nx.read_graphml('./dickens/graph_chunk_entity_relation.graphml')
+G = nx.read_graphml('../dickens/graph_chunk_entity_relation.graphml')
 
 # Create a Pyvis network
 net = Network(notebook=True)
@@ -843,7 +844,7 @@ from lightrag.utils import xml_to_json
 from neo4j import GraphDatabase
 
 # Constants
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../dickens"
 BATCH_SIZE_NODES = 500
 BATCH_SIZE_EDGES = 100
 
@@ -851,6 +852,7 @@ BATCH_SIZE_EDGES = 100
 NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "your_password"
+
 
 def convert_xml_to_json(xml_path, output_path):
     """Converts XML file to JSON and saves the output."""
@@ -868,11 +870,13 @@ def convert_xml_to_json(xml_path, output_path):
         print("Failed to create JSON data")
         return None
 
+
 def process_in_batches(tx, query, data, batch_size):
     """Process data in batches and execute the given query."""
     for i in range(0, len(data), batch_size):
         batch = data[i:i + batch_size]
         tx.run(query, {"nodes": batch} if "nodes" in query else {"edges": batch})
+
 
 def main():
     # Paths
@@ -952,6 +956,7 @@ def main():
 
     finally:
         driver.close()
+
 
 if __name__ == "__main__":
     main()

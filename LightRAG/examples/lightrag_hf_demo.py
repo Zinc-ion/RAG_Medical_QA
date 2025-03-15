@@ -5,7 +5,7 @@ from lightrag.llm.hf import hf_model_complete, hf_embed
 from lightrag.utils import EmbeddingFunc
 from transformers import AutoModel, AutoTokenizer
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "../../dickens"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
