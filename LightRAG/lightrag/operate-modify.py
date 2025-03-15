@@ -996,7 +996,7 @@ async def _build_query_context(
     relationships_vdb: BaseVectorStorage,
     text_chunks_db: BaseKVStorage,
     query_param: QueryParam,
-    query: str
+    query:str
 ):
     if query_param.mode == "local":
         entities_context, relations_context, text_units_context = await _get_node_data(
@@ -1005,7 +1005,6 @@ async def _build_query_context(
             entities_vdb,
             text_chunks_db,
             query_param,
-            query
         )
     elif query_param.mode == "global":
         entities_context, relations_context, text_units_context = await _get_edge_data(
@@ -1075,7 +1074,7 @@ async def _build_query_context(
 
 
 async def _get_node_data(
-    query: str,  # low level keywords
+    query: str,
     knowledge_graph_inst: BaseGraphStorage,
     entities_vdb: BaseVectorStorage,
     text_chunks_db: BaseKVStorage,
@@ -1086,7 +1085,6 @@ async def _get_node_data(
     logger.info(
         f"Query nodes: {query}, top_k: {query_param.top_k}, cosine: {entities_vdb.cosine_better_than_threshold}"
     )
-
     results = await entities_vdb.query(query, top_k=query_param.top_k)
     if not len(results):
         return "", "", ""
@@ -1108,46 +1106,32 @@ async def _get_node_data(
         for k, n, d in zip(results, node_datas, node_degrees)
         if n is not None
     ]  # what is this text_chunks_db doing.  dont remember it in airvx.  check the diagram.
+    # get entitytext chunk
 
-    #注入自定义rerank
     def rerank(data):
-        # 拼接字符串函数
-        # def create_combined_str(item):  # 拼接字符串，把每个条目的字段拼接成一个字符串
-        #     return f"{item['src_id']} {item['tgt_id']} {item['description']} {item['keywords']}"
-
-        def create_combined_str_for_node(item):  # 拼接字符串，把每个entity的字段拼接成一个字符串
+        def create_combined_str_for_node(item):
             return f"{item['entity_name']} {item['entity_type']} {item['description']}"
-
-        def get_top_k_results(data, query, reranker, k=10): # 获取前 k 个结果
-            results = []
+        def get_top_k_results(data,query,reranker,k=10):
+            results=[]
 
             for item in data:
-                # 拼接成字符串
-                combined_str = create_combined_str_for_node(item)
-
-                # 计算分数
+                combined_str=create_combined_str_for_node(item)
                 scores = reranker.compute_score([[query, combined_str]], normalize=True)  # 计算分数
-                item['score'] = scores[0]  # 将分数添加到每个条目
-
+                item['scores']=scores[0]
                 results.append(item)
 
             # 按照分数降序排列，保留前 k 个
-            results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:k]
-
+            results_sorted = sorted(results, key=lambda x: x['scores'], reverse=True)[:k]
             return results_sorted
 
         from FlagEmbedding import FlagReranker
-        reranker = FlagReranker(
-            'C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
-            use_fp16=True)
-        query = query_origin
-        top_k_results = get_top_k_results(data, query, reranker, k=10) # 获取前 10 个结果
+        reranker = FlagReranker('/Users/xiehuaibing/Documents/Kaggle合集/DSAA610/lightrag4teach/LightRAG/lightrag/BAAI/bge-reranker-v2-m3', use_fp16=True)
+        query=query_origin
+        top_k_results=get_top_k_results(data,query,reranker,k=10)
         return top_k_results
 
-    # 调用rerank函数
     node_datas = rerank(node_datas)
 
-    # get entitytext chunk
     use_text_units, use_relations = await asyncio.gather(
         _find_most_related_text_unit_from_entities(
             node_datas, query_param, text_chunks_db, knowledge_graph_inst
@@ -1360,7 +1344,7 @@ async def _get_edge_data(
     relationships_vdb: BaseVectorStorage,
     text_chunks_db: BaseKVStorage,
     query_param: QueryParam,
-    query_origin: str
+    query_origin:str
 ):
     logger.info(
         f"Query edges: {keywords}, top_k: {query_param.top_k}, cosine: {relationships_vdb.cosine_better_than_threshold}"
@@ -1406,7 +1390,6 @@ async def _get_edge_data(
         # 拼接字符串函数
         def create_combined_str(item):
             return f"{item['src_id']} {item['tgt_id']} {item['description']} {item['keywords']}"
-
         # def create_combined_str_for_node(item):
         #     return f"{item['entity_name']} {item['entity_type']} {item['description']}"
 
@@ -1427,16 +1410,12 @@ async def _get_edge_data(
             results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:k]
 
             return results_sorted
-
         from FlagEmbedding import FlagReranker
-        reranker = FlagReranker(
-            'C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
-            use_fp16=True)
-        query = query_origin # query_origin是用户传入的原始query
+        reranker = FlagReranker('/Users/xiehuaibing/Documents/Kaggle合集/DSAA610/MedRAG/LightRAG/lightrag/BAAI/bge-reranker-v2-m3', use_fp16=True)
+        query=query_origin
         top_k_results = get_top_k_results(data, query, reranker, k=10)
         return top_k_results
-
-    edge_datas = rerank(edge_datas)
+    edge_datas=rerank(edge_datas)
 
 
     use_entities, use_text_units = await asyncio.gather(
