@@ -1,10 +1,11 @@
 import json
 from zhipuai import ZhipuAI
 from tqdm import tqdm
+import os
 
 # 初始化 DeepSeek 客户端
 # client = OpenAI(api_key="sk-038b8bf64d134a5a997603798309bf5e", base_url=""https://dashscope.aliyuncs.com/compatible-mode/v1"")
-client = ZhipuAI(api_key="d157669877c646ea92a4aa921d72fe2e.bNIZ6pucOEfRn8OJ")
+client = ZhipuAI(api_key=os.getenv("ZHIPUAI_API_KEY"))
 
 # 调用 DeepSeek API 生成问题
 def generate_questions(text):
