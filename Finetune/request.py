@@ -1,6 +1,6 @@
 import json
 from zhipuai import ZhipuAI
-from OpenAI import OpenAI
+from openai import OpenAI
 from tqdm import tqdm
 import os
 
