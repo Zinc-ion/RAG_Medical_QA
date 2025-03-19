@@ -3,7 +3,7 @@ import json
 from tqdm import tqdm
 
 # 初始化 reranker
-reranker = FlagReranker('BAAI/bge-reranker-v2-m3', use_fp16=True)
+reranker = FlagReranker('../BAAI/bge-reranker-v2-m3', use_fp16=True)
 
 # 读取 test_data.json 文件
 with open('data/test_data.json', 'r', encoding='utf-8') as f:

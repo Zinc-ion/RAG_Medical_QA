@@ -2,7 +2,7 @@ import json
 import random
 
 # 读取原始 JSON 文件
-with open('graph_data.json', 'r', encoding='utf-8') as f:
+with open('../dickens/graph_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 print(len(data['nodes']), len(data['edges']))  # 输出原始数据中的节点数和边数
 # 从 nodes 和 edges 中随机选择 500 个
