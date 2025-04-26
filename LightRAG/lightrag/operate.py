@@ -1402,6 +1402,10 @@ async def _get_edge_data(
         max_token_size=query_param.max_token_for_global_context,
     )
 
+    # 注入reranker模型
+    '''
+    # 注入reranker模型，将原计算cosine相似度取top60 改为reranker模型在线计算分数取top10
+    '''
     def rerank(data):
         # 拼接字符串函数
         def create_combined_str(item):
