@@ -37,7 +37,7 @@ rag = LightRAG(
     ),
 )
 
-with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap10.txt", "r", encoding="utf-8") as f:
+with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap01.txt", "r", encoding="utf-8") as f:
     rag.insert(f.read())
 
 # # Perform naive search
@@ -57,5 +57,5 @@ with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc
 
 # Perform hybrid search
 print(
-    rag.query("预防心脏病的方法是什么?", param=QueryParam(mode="hybrid"))
+    rag.query("文章主要内容是什么?", param=QueryParam(mode="hybrid"))
 )

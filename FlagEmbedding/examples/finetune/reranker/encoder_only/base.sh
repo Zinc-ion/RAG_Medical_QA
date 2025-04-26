@@ -1,5 +1,5 @@
 # 禁用 wandb（Weights & Biases）的在线日志记录功能，避免联网记录训练信息
-export WANDB_MODE=disabled
+#export WANDB_MODE=disabled
 
 # 指定训练数据的绝对路径，注意修改为实际文件路径
 train_data="C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//Finetune//data//train_data.jsonl"
@@ -38,10 +38,13 @@ data_args="\
 # 定义训练参数：输出目录、是否覆盖现有输出、学习率、是否启用 FP16 混合精度训练、训练轮数、批次大小、梯度累计、数据加载器参数、
 # 预热比例、梯度检查点、权重衰减、使用 DeepSpeed 配置、日志记录及保存步数
 training_args="\
-    --output_dir ./test_encoder_only_base_bge-reranker-base \
+    --output_dir ./test_encoder_only_base_bge-rerankerv2m3-base \
     --overwrite_output_dir \
     --learning_rate 6e-5 \
     --fp16 \
+    --report_to wandb \
+    --wandb_project LightRAG_Reranker \  # 新增项目名称设置
+    --wandb_run_name ep-$num_train_epochs-bs-$per_device_train_batch_size-gas-$gradient_accumulation_steps \  # 新增运行名称设置
     --num_train_epochs $num_train_epochs \
     --per_device_train_batch_size $per_device_train_batch_size \
     --gradient_accumulation_steps $gradient_accumulation_steps \
