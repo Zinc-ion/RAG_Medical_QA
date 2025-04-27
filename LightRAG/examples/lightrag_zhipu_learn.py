@@ -37,7 +37,7 @@ rag = LightRAG(
     ),
 )
 
-with open("C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap01.txt", "r", encoding="utf-8") as f:
+with open("D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//CT诊断学//content//chap01.txt", "r", encoding="utf-8") as f:
     rag.insert(f.read())
 
 # # Perform naive search
