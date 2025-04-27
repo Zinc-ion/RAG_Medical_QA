@@ -29,7 +29,7 @@ rag = LightRAG(
     embedding_func=EmbeddingFunc(
         embedding_dim=1024,  # 注意一定要和模型的embedding_dim一致！！
         max_token_size=8192,
-        func=lambda texts: ollama_embedding(
+        func=lambda texts: ollama_embedding(  # 使用ollama中的模型
             texts,
             embed_model="quentinz/bge-large-zh-v1.5",
             host="http://localhost:11434",
