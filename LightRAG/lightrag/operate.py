@@ -1138,7 +1138,7 @@ async def _get_node_data(
 
         from FlagEmbedding import FlagReranker
         reranker = FlagReranker(
-            'C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
+            'D://learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
             use_fp16=True)
         query = query_origin
         top_k_results = get_top_k_results(data, query, reranker, k=10) # 获取前 10 个结果
@@ -1434,7 +1434,7 @@ async def _get_edge_data(
 
         from FlagEmbedding import FlagReranker
         reranker = FlagReranker(
-            'C://Users//PC//Desktop//learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
+            'D://learn_pytorch//LightRAG_QA_Sys//BAAI//bge-reranker-v2-m3',
             use_fp16=True)
         query = query_origin # query_origin是用户传入的原始query
         top_k_results = get_top_k_results(data, query, reranker, k=10)

@@ -7,7 +7,7 @@ from lightrag.llm.zhipu import zhipu_complete
 from lightrag.llm.ollama import ollama_embedding
 from lightrag.utils import EmbeddingFunc
 
-WORKING_DIR = "../dickens"
+WORKING_DIR = "../dickens"  #存放数据的目录
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -37,8 +37,18 @@ rag = LightRAG(
     ),
 )
 
-with open("D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//CT诊断学//content//chap01.txt", "r", encoding="utf-8") as f:
-    rag.insert(f.read())
+# with open("D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//ICU主治医师手册//content//chap25.txt", "r", encoding="utf-8") as f:
+#     rag.insert(f.read())
+
+# 循环插入所有章节
+# for i in range(1, 26):
+#     print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//ICU主治医师手册//content//chap{i:02d}.txt")
+#     print(f"ICU主治医师手册//content//chap{i:02d}")
+#     with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//ICU主治医师手册//content//chap{i:02d}.txt", "r",
+#               encoding="utf-8") as f:
+#         rag.insert(f.read())
+# 4.29抽取完24章，还剩最后ICU主治的25章没抽
+
 
 # # Perform naive search
 # print(
