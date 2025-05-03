@@ -41,14 +41,14 @@ rag = LightRAG(
 #     rag.insert(f.read())
 
 # 循环插入所有章节
-for i in range(1, 6):
-    print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科治疗指南//content//chap{i:02d}.txt")
-    print(f"内科治疗指南//content//chap{i:02d}")
-    with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科治疗指南//content//chap{i:02d}.txt", "r",
+for i in range(1, 52):
+    print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap{i:02d}.txt")
+    print(f"内科疾病鉴别诊断学//content//chap{i:02d}")
+    with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap{i:02d}.txt", "r",
               encoding="utf-8") as f:
         rag.insert(f.read())
 
-# 内科诊疗指南02没抽完，只抽完了01，要重新抽02
+#
 
 
 # # Perform naive search
