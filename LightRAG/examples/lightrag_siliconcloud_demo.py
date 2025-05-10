@@ -1,9 +1,9 @@
 import os
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache
-from lightrag.llm.siliconcloud import siliconcloud_embedding
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import openai_complete_if_cache
+from lightragPkg.llm.siliconcloud import siliconcloud_embedding
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 
 WORKING_DIR = "../../dickens"

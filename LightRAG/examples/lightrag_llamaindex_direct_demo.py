@@ -1,10 +1,10 @@
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.llama_index_impl import (
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.llama_index_impl import (
     llama_index_complete_if_cache,
     llama_index_embed,
 )
-from lightrag.utils import EmbeddingFunc
+from lightragPkg.utils import EmbeddingFunc
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 import asyncio

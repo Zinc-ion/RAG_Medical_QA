@@ -84,7 +84,7 @@ pip install -e .
 ```
 * Install from PyPI
 ```bash
-pip install lightrag-hku
+pip install lightragPkg-hku
 ```
 
 ## Quick Start
@@ -102,8 +102,8 @@ Use the below Python snippet (in a script) to initialize LightRAG and perform qu
 
 ```python
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import gpt_4o_mini_complete, gpt_4o_complete, openai_embed
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import gpt_4o_mini_complete, gpt_4o_complete, openai_embed
 
 rag = LightRAG(
     working_dir="your/path",
@@ -210,9 +210,9 @@ rag = LightRAG(
 See `lightrag_hf_demo.py`
 
 ```python
-from lightrag.llm import hf_model_complete, hf_embed
+from lightragPkg.llm import hf_model_complete, hf_embed
 from transformers import AutoModel, AutoTokenizer
-from lightrag.utils import EmbeddingFunc
+from lightragPkg.utils import EmbeddingFunc
 
 # Initialize LightRAG with Hugging Face model
 rag = LightRAG(
@@ -242,8 +242,8 @@ If you want to use Ollama models, you need to pull model you plan to use and emb
 Then you only need to set LightRAG as follows:
 
 ```python
-from lightrag.llm.ollama import ollama_model_complete, ollama_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg.llm.ollama import ollama_model_complete, ollama_embed
+from lightragPkg.utils import EmbeddingFunc
 
 # Initialize LightRAG with Ollama model
 rag = LightRAG(
@@ -319,14 +319,14 @@ LightRAG supports integration with LlamaIndex.
 
 1. **LlamaIndex** (`llm/llama_index_impl.py`):
    - Integrates with OpenAI and other providers through LlamaIndex
-   - See [LlamaIndex Documentation](lightrag/llm/Readme.md) for detailed setup and examples
+   - See [LlamaIndex Documentation](lightragPkg/llm/Readme.md) for detailed setup and examples
 
 ### Example Usage
 
 ```python
 # Using LlamaIndex with direct OpenAI access
-from lightrag import LightRAG
-from lightrag.llm.llama_index_impl import llama_index_complete_if_cache, llama_index_embed
+from lightragPkg import LightRAG
+from lightragPkg.llm.llama_index_impl import llama_index_complete_if_cache, llama_index_embed
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 
@@ -342,7 +342,7 @@ rag = LightRAG(
 ```
 
 #### For detailed documentation and examples, see:
-- [LlamaIndex Documentation](lightrag/llm/Readme.md)
+- [LlamaIndex Documentation](lightragPkg/llm/Readme.md)
 - [Direct OpenAI Example](examples/lightrag_llamaindex_direct_demo.py)
 - [LiteLLM Proxy Example](examples/lightrag_llamaindex_litellm_demo.py)
 
@@ -353,7 +353,7 @@ rag = LightRAG(
 LightRAG now supports multi-turn dialogue through the conversation history feature. Here's how to use it:
 
 ```python
-from lightrag import LightRAG, QueryParam
+from lightragPkg import LightRAG, QueryParam
 
 # Initialize LightRAG
 rag = LightRAG(working_dir=WORKING_DIR)
@@ -388,7 +388,7 @@ response = rag.query(
 LightRAG now supports custom prompts for fine-tuned control over the system's behavior. Here's how to use it:
 
 ```python
-from lightrag import LightRAG, QueryParam
+from lightragPkg import LightRAG, QueryParam
 
 # Initialize LightRAG
 rag = LightRAG(working_dir=WORKING_DIR)
@@ -803,7 +803,7 @@ The API includes comprehensive error handling:
 ## API
 LightRag can be installed with API support to serve a Fast api interface to perform data upload and indexing/Rag operations/Rescan of the input folder etc..
 
-[LightRag API](lightrag/api/README.md)
+[LightRag API](lightragPkg/api/README.md)
 
 ## Graph Visualization
 
@@ -840,7 +840,7 @@ net.show('knowledge_graph.html')
 ```python
 import os
 import json
-from lightrag.utils import xml_to_json
+from lightragPkg.utils import xml_to_json
 from neo4j import GraphDatabase
 
 # Constants
@@ -969,7 +969,7 @@ if __name__ == "__main__":
 
 LightRag can be installed with Tools support to add extra tools like the graphml 3d visualizer.
 
-[LightRag Visualizer](lightrag/tools/lightrag_visualizer/README.md)
+[LightRag Visualizer](lightragPkg/tools/lightrag_visualizer/README.md)
 
 </details>
 

@@ -1,6 +1,6 @@
 import os
 import json
-from lightrag.utils import xml_to_json
+from lightragPkg.utils import xml_to_json
 from neo4j import GraphDatabase
 
 # Constants

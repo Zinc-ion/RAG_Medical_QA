@@ -2,10 +2,10 @@ import os
 import logging
 
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.zhipu import zhipu_complete
-from lightrag.llm.ollama import ollama
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.zhipu import zhipu_complete
+from lightragPkg.llm.ollama import ollama
+from lightragPkg.utils import EmbeddingFunc
 
 WORKING_DIR = "../../dickens"
 

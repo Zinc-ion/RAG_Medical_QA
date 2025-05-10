@@ -3,9 +3,9 @@ import os
 
 import numpy as np
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm import siliconcloud_embedding, openai_complete_if_cache
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm import siliconcloud_embedding, openai_complete_if_cache
+from lightragPkg.utils import EmbeddingFunc
 
 WORKING_DIR = "../../dickens"
 
@@ -20,7 +20,7 @@ os.environ["TIDB_HOST"] = ""
 os.environ["TIDB_PORT"] = ""
 os.environ["TIDB_USER"] = ""
 os.environ["TIDB_PASSWORD"] = ""
-os.environ["TIDB_DATABASE"] = "lightrag"
+os.environ["TIDB_DATABASE"] = "lightragPkg"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)

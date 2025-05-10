@@ -1,9 +1,9 @@
 import os
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.lmdeploy import lmdeploy_model_if_cache
-from lightrag.llm.hf import hf_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.lmdeploy import lmdeploy_model_if_cache
+from lightragPkg.llm.hf import hf_embed
+from lightragPkg.utils import EmbeddingFunc
 from transformers import AutoModel, AutoTokenizer
 
 WORKING_DIR = "../../dickens"

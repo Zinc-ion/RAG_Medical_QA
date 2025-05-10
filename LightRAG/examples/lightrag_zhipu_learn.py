@@ -2,10 +2,10 @@ import os
 import logging
 
 
-from lightrag.lightrag import LightRAG, QueryParam
-from lightrag.llm.zhipu import zhipu_complete
-from lightrag.llm.ollama import ollama_embedding
-from lightrag.utils import EmbeddingFunc
+from lightragPkg.lightrag import LightRAG, QueryParam
+from lightragPkg.llm.zhipu import zhipu_complete
+from lightragPkg.llm.ollama import ollama_embedding
+from lightragPkg.utils import EmbeddingFunc
 
 WORKING_DIR = "../dickens"  #存放数据的目录
 
@@ -40,15 +40,42 @@ rag = LightRAG(
 # with open("D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//ICU主治医师手册//content//chap25.txt", "r", encoding="utf-8") as f:
 #     rag.insert(f.read())
 
-# 循环插入所有章节
-for i in range(1, 52):
-    print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap{i:02d}.txt")
-    print(f"内科疾病鉴别诊断学//content//chap{i:02d}")
-    with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//内科疾病鉴别诊断学//content//chap{i:02d}.txt", "r",
-              encoding="utf-8") as f:
-        rag.insert(f.read())
 
-#
+for b in range(5):
+
+    if b == 1:
+        for ia in range(11, 18):
+            print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt")
+            print(f"急诊内科学//content//chap{ia:02d}")
+            with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt","r",
+                    encoding="utf-8") as f:
+                rag.insert(f.read())
+
+    # elif b == 2:
+    #     for ib in range(1, 16):
+    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//病理学//content//chap{ib:02d}.txt")
+    #         print(f"病理学//content//chap{ib:02d}")
+    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//病理学//content//chap{ib:02d}.txt","r",
+    #                 encoding="utf-8") as f:
+    #             rag.insert(f.read())
+    #
+    # elif b == 3:
+    #     for ic in range(1, 23):
+    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt")
+    #         print(f"精神病学//content//chap{ic:02d}")
+    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt","r",
+    #                 encoding="utf-8") as f:
+    #             rag.insert(f.read())
+    #
+    # elif b == 4:
+    #     for id in range(1, 4):
+    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//药理学//content//chap{id:02d}.txt")
+    #         print(f"药理学//content//chap{id:02d}")
+    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//药理学//content//chap{id:02d}.txt","r",
+    #                 encoding="utf-8") as f:
+    #             rag.insert(f.read())
+
+
 
 
 # # Perform naive search

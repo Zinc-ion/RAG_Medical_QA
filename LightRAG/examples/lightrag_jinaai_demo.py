@@ -1,8 +1,8 @@
 import numpy as np
-from lightrag import LightRAG, QueryParam
-from lightrag.utils import EmbeddingFunc
-from lightrag.llm.jina import jina_embed
-from lightrag.llm.openai import openai_complete_if_cache
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.utils import EmbeddingFunc
+from lightragPkg.llm.jina import jina_embed
+from lightragPkg.llm.openai import openai_complete_if_cache
 import os
 import asyncio
 

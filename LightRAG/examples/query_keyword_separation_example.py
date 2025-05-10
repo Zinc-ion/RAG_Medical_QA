@@ -1,7 +1,7 @@
 import os
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 from dotenv import load_dotenv
 import logging

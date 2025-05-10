@@ -3,9 +3,9 @@ import inspect
 import logging
 import os
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_embed, ollama_model_complete
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_embed, ollama_model_complete
+from lightragPkg.utils import EmbeddingFunc
 
 WORKING_DIR = "./dickens_age"
 

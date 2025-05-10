@@ -1,7 +1,7 @@
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_model_complete, ollama_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_model_complete, ollama_embed
+from lightragPkg.utils import EmbeddingFunc
 
 # WorkingDir
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +25,7 @@ os.environ["NEO4J_PASSWORD"] = "neo4j"
 os.environ["MILVUS_URI"] = "http://localhost:19530"
 os.environ["MILVUS_USER"] = "root"
 os.environ["MILVUS_PASSWORD"] = "root"
-os.environ["MILVUS_DB_NAME"] = "lightrag"
+os.environ["MILVUS_DB_NAME"] = "lightragPkg"
 
 
 rag = LightRAG(

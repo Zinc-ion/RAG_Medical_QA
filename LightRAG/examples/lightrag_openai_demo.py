@@ -1,7 +1,7 @@
 import os
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import gpt_4o_mini_complete, openai_embed
 
 WORKING_DIR = "../../dickens"
 

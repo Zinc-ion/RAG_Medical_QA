@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_embed, ollama_model_complete
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_embed, ollama_model_complete
+from lightragPkg.utils import EmbeddingFunc
 from typing import Optional
 import asyncio
 import nest_asyncio

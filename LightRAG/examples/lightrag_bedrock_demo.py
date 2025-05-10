@@ -5,9 +5,9 @@ LightRAG meets Amazon Bedrock ⛰️
 import os
 import logging
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.bedrock import bedrock_complete, bedrock_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.bedrock import bedrock_complete, bedrock_embed
+from lightragPkg.utils import EmbeddingFunc
 
 logging.getLogger("aiobotocore").setLevel(logging.WARNING)
 

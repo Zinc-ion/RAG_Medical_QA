@@ -5,11 +5,11 @@ WORKDIR /app
 
 # Copy only requirements files first to leverage Docker cache
 COPY requirements.txt .
-COPY lightrag/api/requirements.txt ./lightrag/api/
+COPY lightragPkg/api/requirements.txt ./lightrag/api/
 
 # Install dependencies
 RUN pip install --user --no-cache-dir -r requirements.txt
-RUN pip install --user --no-cache-dir -r lightrag/api/requirements.txt
+RUN pip install --user --no-cache-dir -r lightragPkg/api/requirements.txt
 
 # Final stage
 FROM python:3.11-slim
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Copy only necessary files from builder
 COPY --from=builder /root/.local /root/.local
-COPY lightrag ./lightrag
+COPY lightragPkg ./lightrag
 COPY setup.py .
 
 RUN pip install .

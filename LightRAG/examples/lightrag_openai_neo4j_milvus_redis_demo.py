@@ -1,7 +1,7 @@
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_embed, openai_complete_if_cache
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_embed, openai_complete_if_cache
+from lightragPkg.utils import EmbeddingFunc
 
 # WorkingDir
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ os.environ["NEO4J_PASSWORD"] = "12345678"
 os.environ["MILVUS_URI"] = "http://117.50.173.35:19530"
 os.environ["MILVUS_USER"] = "root"
 os.environ["MILVUS_PASSWORD"] = "Milvus"
-os.environ["MILVUS_DB_NAME"] = "lightrag"
+os.environ["MILVUS_DB_NAME"] = "lightragPkg"
 
 
 async def llm_model_func(

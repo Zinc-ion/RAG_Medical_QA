@@ -9,9 +9,9 @@ import logging
 import os
 from dotenv import load_dotenv
 
-from lightrag.kg.postgres_impl import PostgreSQLDB, PGKVStorage
-from lightrag.storage import JsonKVStorage
-from lightrag.namespace import NameSpace
+from lightragPkg.kg.postgres_impl import PostgreSQLDB, PGKVStorage
+from lightragPkg.storage import JsonKVStorage
+from lightragPkg.namespace import NameSpace
 
 load_dotenv()
 ROOT_DIR = os.environ.get("ROOT_DIR")

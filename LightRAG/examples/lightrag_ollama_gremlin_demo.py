@@ -4,14 +4,14 @@ import os
 
 # Uncomment these lines below to filter out somewhat verbose INFO level
 # logging prints (the default loglevel is INFO).
-# This has to go before the lightrag imports to work,
+# This has to go before the lightragPkg imports to work,
 # which triggers linting errors, so we keep it commented out:
 # import logging
 # logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.WARN)
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_embed, ollama_model_complete
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_embed, ollama_model_complete
+from lightragPkg.utils import EmbeddingFunc
 
 WORKING_DIR = "./dickens_gremlin"
 

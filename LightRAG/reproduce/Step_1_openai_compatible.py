@@ -3,13 +3,13 @@ import json
 import time
 import numpy as np
 
-from lightrag import LightRAG
-from lightrag.utils import EmbeddingFunc
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from lightragPkg import LightRAG
+from lightragPkg.utils import EmbeddingFunc
+from lightragPkg.llm.openai import openai_complete_if_cache, openai_embed
 
 
 ## For Upstage API
-# please check if embedding_dim=4096 in lightrag.py and llm.py in lightrag direcotry
+# please check if embedding_dim=4096 in lightragPkg.py and llm.py in lightragPkg direcotry
 async def llm_model_func(
     prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:

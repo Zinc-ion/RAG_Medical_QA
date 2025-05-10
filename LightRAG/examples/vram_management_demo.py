@@ -1,8 +1,8 @@
 import os
 import time
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_model_complete, ollama_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.ollama import ollama_model_complete, ollama_embed
+from lightragPkg.utils import EmbeddingFunc
 
 # Working directory and the directory path for text files
 WORKING_DIR = "../../dickens"

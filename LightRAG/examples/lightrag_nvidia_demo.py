@@ -1,15 +1,15 @@
 import os
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm import (
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm import (
     openai_complete_if_cache,
     nvidia_openai_embed,
 )
-from lightrag.utils import EmbeddingFunc
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 
 # for custom llm_model_func
-from lightrag.utils import locate_json_string_body_from_string
+from lightragPkg.utils import locate_json_string_body_from_string
 
 WORKING_DIR = "../../dickens"
 

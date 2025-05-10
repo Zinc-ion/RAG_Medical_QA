@@ -1,0 +1,7 @@
+2025-05-10 19:00:55,598 - lightrag - INFO - Logger initialized for working directory: ./dickens
+2025-05-10 19:00:58,860 - lightrag - INFO - Load KV llm_response_cache with 2 data
+2025-05-10 19:00:58,938 - lightrag - INFO - Load KV full_docs with 133 data
+2025-05-10 19:00:59,082 - lightrag - INFO - Load KV text_chunks with 10330 data
+2025-05-10 19:01:40,836 - lightrag - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 89879 nodes, 99432 edges
+2025-05-10 19:01:52,774 - lightrag - INFO - Loaded document status storage with 134 records
+2025-05-10 19:01:52,776 - lightrag - INFO - Non-embedding cached hit(mode:hybrid type:query)

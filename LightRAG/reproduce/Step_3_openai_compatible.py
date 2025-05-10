@@ -1,14 +1,14 @@
 import os
 import re
 import json
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
-from lightrag.utils import EmbeddingFunc, always_get_an_event_loop
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import openai_complete_if_cache, openai_embed
+from lightragPkg.utils import EmbeddingFunc, always_get_an_event_loop
 import numpy as np
 
 
 ## For Upstage API
-# please check if embedding_dim=4096 in lightrag.py and llm.py in lightrag direcotry
+# please check if embedding_dim=4096 in lightragPkg.py and llm.py in lightragPkg direcotry
 async def llm_model_func(
     prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:

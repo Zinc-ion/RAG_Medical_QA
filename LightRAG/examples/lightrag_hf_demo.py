@@ -1,8 +1,8 @@
 import os
 
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.hf import hf_model_complete, hf_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.hf import hf_model_complete, hf_embed
+from lightragPkg.utils import EmbeddingFunc
 from transformers import AutoModel, AutoTokenizer
 
 WORKING_DIR = "../../dickens"

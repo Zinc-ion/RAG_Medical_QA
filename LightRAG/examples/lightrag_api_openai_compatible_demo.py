@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import openai_complete_if_cache, openai_embed
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 from typing import Optional
 import asyncio

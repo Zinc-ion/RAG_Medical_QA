@@ -1,8 +1,8 @@
 import os
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import gpt_4o_mini_complete, openai_embed
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 
 #########

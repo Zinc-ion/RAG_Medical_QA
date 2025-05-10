@@ -2,9 +2,9 @@ import sys
 import os
 from pathlib import Path
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
-from lightrag.utils import EmbeddingFunc
+from lightragPkg import LightRAG, QueryParam
+from lightragPkg.llm.openai import openai_complete_if_cache, openai_embed
+from lightragPkg.utils import EmbeddingFunc
 import numpy as np
 
 print(os.getcwd())
