@@ -98,3 +98,26 @@
 2025-05-10 20:33:28,153 - lightragPkg - INFO - Inserting 1 to llm_response_cache
 2025-05-10 20:33:40,413 - lightragPkg - INFO - Creating a new event loop in main thread.
 2025-05-10 20:33:40,414 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-05-10 22:23:50,831 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-05-10 22:23:52,588 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-05-10 22:23:52,619 - lightragPkg - INFO - Load KV full_docs with 133 data
+2025-05-10 22:23:52,672 - lightragPkg - INFO - Load KV text_chunks with 10330 data
+2025-05-10 22:24:03,281 - lightragPkg - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 89879 nodes, 99432 edges
+2025-05-10 22:24:10,900 - lightragPkg - INFO - Loaded document status storage with 134 records
+2025-05-10 22:24:10,901 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-05-10 22:27:47,162 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-05-10 22:27:47,163 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-05-10 22:27:47,163 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-05-10 22:27:49,025 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-05-10 22:27:49,025 - lightragPkg - INFO - Query nodes: 体温, 退烧药, 休息, 就医建议, 病因排查, top_k: 60, cosine: 0.2
+2025-05-10 22:27:50,356 - lightragPkg - INFO - Query edges: 发烧, 症状, 健康问题, 自我护理, top_k: 60, cosine: 0.2
+2025-05-10 22:28:13,167 - lightragPkg - INFO - Global query uses 11 entites, 10 relations, 7 chunks
+2025-05-10 22:28:13,186 - lightragPkg - INFO - Local query uses 10 entites, 123 relations, 7 chunks
+2025-05-10 22:28:17,965 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-05-10 23:27:52,722 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-05-10 23:27:54,500 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-05-10 23:27:54,530 - lightragPkg - INFO - Load KV full_docs with 133 data
+2025-05-10 23:27:54,586 - lightragPkg - INFO - Load KV text_chunks with 10330 data
+2025-05-10 23:28:05,527 - lightragPkg - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 89879 nodes, 99432 edges
+2025-05-10 23:28:12,200 - lightragPkg - INFO - Loaded document status storage with 134 records
+2025-05-10 23:28:12,200 - lightragPkg - INFO - Creating a new event loop in main thread.

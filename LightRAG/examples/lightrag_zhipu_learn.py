@@ -44,7 +44,7 @@ rag = LightRAG(
 for b in range(5):
 
     if b == 1:
-        for ia in range(11, 18):
+        for ia in range(17, 18):
             print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt")
             print(f"急诊内科学//content//chap{ia:02d}")
             with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt","r",
