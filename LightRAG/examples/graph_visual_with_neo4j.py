@@ -1,6 +1,6 @@
 import os
 import json
-from lightragPkg.utils import xml_to_json
+from LightRAG.lightragPkg.utils import xml_to_json
 from neo4j import GraphDatabase
 
 # Constants
@@ -12,6 +12,21 @@ BATCH_SIZE_EDGES = 100
 NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "12345678"
+
+
+# 添加连接测试函数
+def test_connection():
+    """测试Neo4j连接"""
+    try:
+        driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+        with driver.session() as session:
+            result = session.run("RETURN 1 AS test")
+            print(f"Neo4j连接成功: {result.single()['test']}")
+        driver.close()
+        return True
+    except Exception as e:
+        print(f"Neo4j连接失败: {e}")
+        return False
 
 
 def convert_xml_to_json(xml_path, output_path):
@@ -39,6 +54,12 @@ def process_in_batches(tx, query, data, batch_size):
 
 
 def main():
+    # 首先测试连接
+    if not test_connection():
+        print("请确认Neo4j服务已启动且连接参数正确")
+        return
+
+
     # Paths
     xml_file = os.path.join(WORKING_DIR, "graph_chunk_entity_relation.graphml")
     json_file = os.path.join(WORKING_DIR, "graph_data.json")

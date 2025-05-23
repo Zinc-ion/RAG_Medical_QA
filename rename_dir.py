@@ -16,4 +16,4 @@ def rename_dir(work_dir, old_ext, new_ext):
     return
 
 
-rename_dir("D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//药理学//content", ".tex", ".txt")
+rename_dir("/doc/medical-books/01已经抽取完毕的资料/药理学//content", ".tex", ".txt")

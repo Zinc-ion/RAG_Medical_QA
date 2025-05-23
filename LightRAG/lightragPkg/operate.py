@@ -1109,6 +1109,9 @@ async def _get_node_data(
         if n is not None
     ]  # what is this text_chunks_db doing.  dont remember it in airvx.  check the diagram.
 
+
+
+
     #注入自定义rerank
     def rerank(data):
         # 拼接字符串函数
@@ -1134,6 +1137,8 @@ async def _get_node_data(
             # 按照分数降序排列，保留前 k 个
             results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:k]
 
+            print(f"前{k}个相关实体结果如下：\n {results_sorted}")
+
             return results_sorted
 
         from FlagEmbedding import FlagReranker
@@ -1146,6 +1151,9 @@ async def _get_node_data(
 
     # 调用rerank函数
     node_datas = rerank(node_datas)
+
+
+
 
     # get entitytext chunk
     use_text_units, use_relations = await asyncio.gather(
@@ -1402,6 +1410,9 @@ async def _get_edge_data(
         max_token_size=query_param.max_token_for_global_context,
     )
 
+
+
+
     # 注入reranker模型
     '''
     # 注入reranker模型，将原计算cosine相似度取top60 改为reranker模型在线计算分数取top10
@@ -1429,6 +1440,7 @@ async def _get_edge_data(
 
             # 按照分数降序排列，保留前 k 个
             results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:k]
+            print(f"前{k}个相关关系结果如下：\n {results_sorted}")
 
             return results_sorted
 
@@ -1441,6 +1453,10 @@ async def _get_edge_data(
         return top_k_results
 
     edge_datas = rerank(edge_datas)
+
+
+
+
 
 
     use_entities, use_text_units = await asyncio.gather(

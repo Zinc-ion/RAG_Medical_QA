@@ -43,37 +43,15 @@ rag = LightRAG(
 
 for b in range(5):
 
-    if b == 1:
-        for ia in range(17, 18):
-            print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt")
-            print(f"急诊内科学//content//chap{ia:02d}")
-            with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//急诊内科学//content//part{ia:02d}.txt","r",
+    if b == 3:
+        for ic in range(11, 23):
+            print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt")
+            print(f"精神病学//content//chap{ic:02d}")
+            with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt","r",
                     encoding="utf-8") as f:
                 rag.insert(f.read())
 
-    # elif b == 2:
-    #     for ib in range(1, 16):
-    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//病理学//content//chap{ib:02d}.txt")
-    #         print(f"病理学//content//chap{ib:02d}")
-    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//病理学//content//chap{ib:02d}.txt","r",
-    #                 encoding="utf-8") as f:
-    #             rag.insert(f.read())
-    #
-    # elif b == 3:
-    #     for ic in range(1, 23):
-    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt")
-    #         print(f"精神病学//content//chap{ic:02d}")
-    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//精神病学//content//chap{ic:02d}.txt","r",
-    #                 encoding="utf-8") as f:
-    #             rag.insert(f.read())
-    #
-    # elif b == 4:
-    #     for id in range(1, 4):
-    #         print(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//药理学//content//chap{id:02d}.txt")
-    #         print(f"药理学//content//chap{id:02d}")
-    #         with open(f"D://learn_pytorch//LightRAG_QA_Sys//LightRAG//doc//medical-books//药理学//content//chap{id:02d}.txt","r",
-    #                 encoding="utf-8") as f:
-    #             rag.insert(f.read())
+
 
 
 
