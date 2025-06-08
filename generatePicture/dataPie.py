@@ -23,7 +23,7 @@ plt.pie(error_ratio,
         shadow=True,
         textprops={'fontsize':12})
 
-plt.title('难负例类型分布 (N=5000)', fontsize=20, pad=20)
+plt.title('难负例类型分布 (N=5000)', fontsize=12, pad=20)
 plt.axis('equal')  # 保证饼图为正圆形
 plt.tight_layout()
 plt.savefig('error_type_pie.png', dpi=300)
