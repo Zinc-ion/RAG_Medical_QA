@@ -436,3 +436,32 @@
 2025-12-29 13:25:56,074 - lightragPkg - INFO - Inserting 1 to llm_response_cache
 2025-12-29 13:27:14,902 - lightragPkg - INFO - Creating a new event loop in main thread.
 2025-12-29 13:27:14,903 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-12-29 13:54:57,811 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-12-29 13:55:00,017 - lightragPkg - INFO - Load KV llm_response_cache with 3 data
+2025-12-29 13:55:00,053 - lightragPkg - INFO - Load KV full_docs with 153 data
+2025-12-29 13:55:00,124 - lightragPkg - INFO - Load KV text_chunks with 11655 data
+2025-12-29 13:55:12,566 - lightragPkg - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 100655 nodes, 112682 edges
+2025-12-29 13:55:19,522 - lightragPkg - INFO - Loaded document status storage with 154 records
+2025-12-29 13:55:19,523 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 14:36:13,408 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 14:36:13,409 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-12-29 14:36:13,410 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-12-29 14:36:15,694 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 14:36:15,695 - lightragPkg - INFO - Query nodes: 药物治疗, 手术治疗, 鼻窦冲洗, 抗生素, 鼻塞, 流涕, 鼻窦炎症状, top_k: 60, cosine: 0.2
+2025-12-29 14:36:17,898 - lightragPkg - INFO - Query edges: 慢性鼻窦炎, 鼻窦炎治疗, 慢性疾病管理, 鼻部健康, top_k: 60, cosine: 0.2
+2025-12-29 14:40:16,246 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-12-29 14:40:18,693 - lightragPkg - INFO - Load KV llm_response_cache with 3 data
+2025-12-29 14:40:18,732 - lightragPkg - INFO - Load KV full_docs with 153 data
+2025-12-29 14:40:18,816 - lightragPkg - INFO - Load KV text_chunks with 11655 data
+2025-12-29 14:40:32,994 - lightragPkg - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 100655 nodes, 112682 edges
+2025-12-29 14:40:41,602 - lightragPkg - INFO - Loaded document status storage with 154 records
+2025-12-29 14:40:41,603 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 14:41:42,296 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 14:41:42,297 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-12-29 14:41:42,298 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-12-29 14:41:44,354 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 14:41:44,354 - lightragPkg - INFO - Query nodes: 药物治疗, 手术治疗, 鼻窦冲洗, 鼻部检查, 抗生素, 鼻腔用药, top_k: 60, cosine: 0.2
+2025-12-29 14:41:46,446 - lightragPkg - INFO - Query edges: 慢性鼻窦炎, 鼻窦炎治疗, 慢性疾病治疗, 鼻部健康, top_k: 60, cosine: 0.2
+2025-12-29 14:42:13,687 - lightragPkg - INFO - Global query uses 16 entites, 10 relations, 7 chunks
+2025-12-29 14:42:13,696 - lightragPkg - INFO - Local query uses 10 entites, 10 relations, 7 chunks
+2025-12-29 14:42:17,119 - lightragPkg - INFO - Inserting 1 to llm_response_cache

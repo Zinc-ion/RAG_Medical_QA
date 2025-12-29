@@ -1347,7 +1347,7 @@ async def _find_most_related_edges_from_entities(
         if v is not None
     ]
     all_edges_data = sorted(
-        all_edges_data, key=lambda x: (x["rank"], x["weight"]), reverse=True
+        all_edges_data, key=lambda x: (x["rank"], x.get("weight", 0.0)), reverse=True
     )
     all_edges_data = truncate_list_by_token_size(
         all_edges_data,
@@ -1402,7 +1402,7 @@ async def _get_edge_data(
         if v is not None
     ]
     edge_datas = sorted(
-        edge_datas, key=lambda x: (x["rank"], x["weight"]), reverse=True
+        edge_datas, key=lambda x: (x["rank"], x.get("weight", 0.0)), reverse=True
     )
     edge_datas = truncate_list_by_token_size(
         edge_datas,
