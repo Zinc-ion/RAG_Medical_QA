@@ -83,8 +83,15 @@ def visualize_graph(rag_instance, query_entity=None):
     try:
         # 尝试获取图对象，优先使用内存中的，否则尝试读取文件
         G = None
-        if hasattr(rag_instance, 'chunk_entity_relation_graph'):
-            G = rag_instance.chunk_entity_relation_graph
+        # 修正：rag.chunk_entity_relation_graph 通常是 NetworkXStorage 实例
+        # 它的底层 networkx 图对象存储在 _graph 属性中
+        storage_inst = getattr(rag_instance, 'chunk_entity_relation_graph', None)
+        
+        if storage_inst:
+            if hasattr(storage_inst, '_graph'):
+                G = storage_inst._graph
+            elif isinstance(storage_inst, nx.Graph):
+                G = storage_inst
         
         if G is None or len(G.nodes) == 0:
             graph_path = os.path.join(WORKING_DIR, "graph_chunk_entity_relation.graphml")
