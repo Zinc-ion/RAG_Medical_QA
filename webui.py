@@ -46,7 +46,7 @@ if api_key is None:
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=zhipu_complete,
-    llm_model_name="glm-4-flashx",  # Using the most cost/performance balance model, but you can change it here.
+    llm_model_name="glm-4.7",  # Using the most cost/performance balance model, but you can change it here.
     llm_model_max_async=4,
     chunk_token_size=512,
     llm_model_max_token_size=32768,

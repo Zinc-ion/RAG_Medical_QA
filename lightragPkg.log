@@ -399,3 +399,40 @@
 2025-06-02 12:58:23,976 - lightragPkg - INFO - Creating a new event loop in main thread.
 2025-06-02 12:58:23,977 - lightragPkg - INFO - Non-embedding cached missed(mode:naive type:query)
 2025-06-02 12:58:31,084 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 13:08:31,550 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-12-29 13:08:33,788 - lightragPkg - INFO - Load KV llm_response_cache with 3 data
+2025-12-29 13:08:33,874 - lightragPkg - INFO - Load KV full_docs with 153 data
+2025-12-29 13:08:33,995 - lightragPkg - INFO - Load KV text_chunks with 11655 data
+2025-12-29 13:08:58,501 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:17:36,080 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-12-29 13:17:38,550 - lightragPkg - INFO - Load KV llm_response_cache with 3 data
+2025-12-29 13:17:38,590 - lightragPkg - INFO - Load KV full_docs with 153 data
+2025-12-29 13:17:38,659 - lightragPkg - INFO - Load KV text_chunks with 11655 data
+2025-12-29 13:18:44,901 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:18:58,051 - lightragPkg - INFO - Logger initialized for working directory: ./dickens
+2025-12-29 13:18:59,894 - lightragPkg - INFO - Load KV llm_response_cache with 3 data
+2025-12-29 13:18:59,929 - lightragPkg - INFO - Load KV full_docs with 153 data
+2025-12-29 13:18:59,988 - lightragPkg - INFO - Load KV text_chunks with 11655 data
+2025-12-29 13:19:15,758 - lightragPkg - INFO - Loaded graph from ./dickens\graph_chunk_entity_relation.graphml with 100655 nodes, 112682 edges
+2025-12-29 13:19:22,622 - lightragPkg - INFO - Loaded document status storage with 154 records
+2025-12-29 13:19:22,622 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:21:04,877 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:21:04,879 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-12-29 13:21:04,879 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-12-29 13:21:10,135 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 13:21:10,135 - lightragPkg - INFO - Query nodes: 抗病毒药物, 流感疫苗, 对症治疗, 休息与营养, 隔离措施, top_k: 60, cosine: 0.2
+2025-12-29 13:21:12,595 - lightragPkg - INFO - Query edges: 甲型流感, 流感治疗, 病毒感染, 疾病治疗, top_k: 60, cosine: 0.2
+2025-12-29 13:21:51,282 - lightragPkg - INFO - Global query uses 17 entites, 10 relations, 7 chunks
+2025-12-29 13:21:51,284 - lightragPkg - INFO - Local query uses 10 entites, 5 relations, 7 chunks
+2025-12-29 13:21:54,692 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 13:25:30,150 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:25:30,152 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:query)
+2025-12-29 13:25:30,152 - lightragPkg - INFO - Non-embedding cached missed(mode:hybrid type:keywords)
+2025-12-29 13:25:32,346 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 13:25:32,346 - lightragPkg - INFO - Query nodes: AI, 助手, 模型版本, 功能介绍, 技术细节, top_k: 60, cosine: 0.2
+2025-12-29 13:25:33,357 - lightragPkg - INFO - Query edges: 自我介绍, 人工智能助手, 版本信息, 模型描述, top_k: 60, cosine: 0.2
+2025-12-29 13:25:54,200 - lightragPkg - INFO - Global query uses 18 entites, 10 relations, 7 chunks
+2025-12-29 13:25:54,202 - lightragPkg - INFO - Local query uses 10 entites, 4 relations, 7 chunks
+2025-12-29 13:25:56,074 - lightragPkg - INFO - Inserting 1 to llm_response_cache
+2025-12-29 13:27:14,902 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-29 13:27:14,903 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
