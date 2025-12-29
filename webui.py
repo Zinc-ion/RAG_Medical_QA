@@ -3,18 +3,14 @@ import ollama
 import py2neo
 import random
 import re
-
-
-#源用不到的包
-# import ner_model as zwk
-# import pickle
-# from transformers import BertTokenizer
-# import torch
-
-#lightragPkg
 import os
 import sys
 import logging
+import networkx as nx
+from pyvis.network import Network
+import streamlit.components.v1 as components
+
+#lightragPkg
 from LightRAG.lightragPkg.lightrag import LightRAG, QueryParam
 from LightRAG.lightragPkg.llm.zhipu import zhipu_complete
 from LightRAG.lightragPkg.llm.ollama import ollama_embedding
@@ -23,313 +19,133 @@ from LightRAG.lightragPkg.utils import EmbeddingFunc
 # 加载环境变量
 from dotenv import load_dotenv
 
-# 添加LightRAG目录到系统路径 因为是导入的项目，需要添加路径，不然报错找不到module named lightragPkg这个文件夹
+# 添加LightRAG目录到系统路径
 sys.path.append(os.path.join(os.path.dirname(__file__), 'LightRAG'))
-
 
 # 加载.env文件
 load_dotenv()
-
 
 WORKING_DIR = "./dickens"  #存放数据的目录
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+# --- 模拟动态新闻数据流 ---
+FAKE_NEWS_DATA = [
+    """【2024-12-29 突发卫生事件】
+    某地疾控中心报告发现一种新型流感病毒变异株“H9N9-Beta”。
+    症状表现：该变异株除常规流感症状外，显著特征为持续性关节剧痛和结膜充血。
+    治疗方案：初步临床试验显示，抗病毒药物“奥司他韦”联合新药“V-2024”具有显著疗效。
+    传播途径：主要通过呼吸道飞沫传播，潜伏期缩短至12小时。""",
+    
+    """【2024-12-30 医疗科技进展】
+    Z大学附属医院神经内科团队宣布，“经颅磁刺激（TMS）”在治疗慢性偏头痛方面取得突破。
+    研究表明：每周进行3次TMS治疗，配合口服微量褪黑素，可使发作频率降低70%。
+    禁忌症：体内植入心脏起搏器的患者禁用此疗法。""",
+    
+    """【2024-12-31 药品召回通知】
+    由于生产线遭受微生物污染，X药业集团紧急召回批次号为#20241101的“复方感冒灵颗粒”。
+    风险提示：服用受污染药品可能导致严重的细菌性肠胃炎。
+    建议：已购买该批次药品的患者请立即停止服用，并联系药店退款。"""
+]
 
-api_key = os.environ.get("ZHIPUAI_API_KEY")
-if api_key is None:
-    raise Exception("Please set ZHIPU_API_KEY in your environment")
+@st.cache_resource
+def init_rag():
+    if not os.path.exists(WORKING_DIR):
+        os.mkdir(WORKING_DIR)
+    
+    api_key = os.environ.get("ZHIPUAI_API_KEY")
+    if api_key is None:
+        raise Exception("Please set ZHIPU_API_KEY in your environment")
+    
+    rag = LightRAG(
+        working_dir=WORKING_DIR,
+        llm_model_func=zhipu_complete,
+        llm_model_name="glm-4.7",
+        llm_model_max_async=4,
+        chunk_token_size=512,
+        llm_model_max_token_size=32768,
+        embedding_func=EmbeddingFunc(
+            embedding_dim=1024,
+            max_token_size=8192,
+            func=lambda texts: ollama_embedding(
+                texts,
+                embed_model="quentinz/bge-large-zh-v1.5",
+                host="http://localhost:11434",
+            )
+        ),
+    )
+    return rag
 
-# 加载lightrag
-rag = LightRAG(
-    working_dir=WORKING_DIR,
-    llm_model_func=zhipu_complete,
-    llm_model_name="glm-4.7",  # Using the most cost/performance balance model, but you can change it here.
-    llm_model_max_async=4,
-    chunk_token_size=512,
-    llm_model_max_token_size=32768,
-    embedding_func=EmbeddingFunc(
-        embedding_dim=1024,  # 注意一定要和模型的embedding_dim一致！！
-        max_token_size=8192,
-        func=lambda texts: ollama_embedding(  # 使用ollama中的模型
-            texts,
-            embed_model="quentinz/bge-large-zh-v1.5",
-            host="http://localhost:11434",
-                                            )
-    ),
-)
+def visualize_graph(rag_instance, query_entity=None):
+    """
+    生成知识图谱的可视化HTML
+    """
+    try:
+        # 尝试获取图对象，优先使用内存中的，否则尝试读取文件
+        G = None
+        if hasattr(rag_instance, 'chunk_entity_relation_graph'):
+            G = rag_instance.chunk_entity_relation_graph
+        
+        if G is None or len(G.nodes) == 0:
+            graph_path = os.path.join(WORKING_DIR, "graph_chunk_entity_relation.graphml")
+            if os.path.exists(graph_path):
+                G = nx.read_graphml(graph_path)
+        
+        if G is None or len(G.nodes) == 0:
+            return None, "暂无图谱数据"
 
+        # 子图过滤逻辑
+        if query_entity:
+            # 模糊匹配节点ID
+            nodes = [n for n in G.nodes() if query_entity in str(n)]
+            if nodes:
+                # 提取一跳邻居
+                subgraph_nodes = set(nodes)
+                for n in nodes:
+                    subgraph_nodes.update(G.neighbors(n))
+                G = G.subgraph(subgraph_nodes)
+            else:
+                return None, f"未找到包含 '{query_entity}' 的节点"
+        else:
+            # 默认只显示前100个节点，防止浏览器卡死
+            if len(G.nodes) > 100:
+                G = G.subgraph(list(G.nodes())[:100])
 
-# @st.cache_resource
-# def load_model(cache_model):
-#     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-#     #加载ChatGLM模型
-#     # glm_tokenizer = AutoTokenizer.from_pretrained("model/chatglm3-6b-128k", trust_remote_code=True)
-#     # glm_model = AutoModel.from_pretrained("model/chatglm3-6b-128k",trust_remote_code=True,device=device)
-#     # glm_model.eval()
-#     glm_model = None
-#     glm_tokenizer= None
-#     #加载Bert模型
-#     with open('tmp_data/tag2idx.npy', 'rb') as f:
-#         tag2idx = pickle.load(f)
-#     idx2tag = list(tag2idx)
-#     rule = zwk.rule_find()
-#     tfidf_r = zwk.tfidf_alignment()
-#     model_name = 'model/chinese-roberta-wwm-ext'
-#     bert_tokenizer = BertTokenizer.from_pretrained(model_name)
-#     bert_model = zwk.Bert_Model(model_name, hidden_size=128, tag_num=len(tag2idx), bi=True)
-#     bert_model.load_state_dict(torch.load(f'model/{cache_model}.pt'))
-#
-#     bert_model = bert_model.to(device)
-#     bert_model.eval()
-#     return glm_tokenizer,glm_model,bert_tokenizer,bert_model,idx2tag,rule,tfidf_r,device
-
-
-
-
-# def Intent_Recognition(query,choice):
-#     prompt = f"""
-# 阅读下列提示，回答问题（问题在输入的最后）:
-# 当你试图识别用户问题中的查询意图时，你需要仔细分析问题，并在16个预定义的查询类别中一一进行判断。对于每一个类别，思考用户的问题是否含有与该类别对应的意图。如果判断用户的问题符合某个特定类别，就将该类别加入到输出列表中。这样的方法要求你对每一个可能的查询意图进行系统性的考虑和评估，确保没有遗漏任何一个可能的分类。
-#
-# **查询类别**
-# - "查询疾病简介"
-# - "查询疾病病因"
-# - "查询疾病预防措施"
-# - "查询疾病治疗周期"
-# - "查询治愈概率"
-# - "查询疾病易感人群"
-# - "查询疾病所需药品"
-# - "查询疾病宜吃食物"
-# - "查询疾病忌吃食物"
-# - "查询疾病所需检查项目"
-# - "查询疾病所属科目"
-# - "查询疾病的症状"
-# - "查询疾病的治疗方法"
-# - "查询疾病的并发疾病"
-# - "查询药品的生产商"
-#
-# 在处理用户的问题时，请按照以下步骤操作：
-# - 仔细阅读用户的问题。
-# - 对照上述查询类别列表，依次考虑每个类别是否与用户问题相关。
-# - 如果用户问题明确或隐含地包含了某个类别的查询意图，请将该类别的描述添加到输出列表中。
-# - 确保最终的输出列表包含了所有与用户问题相关的类别描述。
-#
-# 以下是一些含有隐晦性意图的例子，每个例子都采用了输入和输出格式，并包含了对你进行思维链形成的提示：
-# **示例1：**
-# 输入："睡眠不好，这是为什么？"
-# 输出：["查询疾病简介","查询疾病病因"]  # 这个问题隐含地询问了睡眠不好的病因
-# **示例2：**
-# 输入："感冒了，怎么办才好？"
-# 输出：["查询疾病简介","查询疾病所需药品", "查询疾病的治疗方法"]  # 用户可能既想知道应该吃哪些药品，也想了解治疗方法
-# **示例3：**
-# 输入："跑步后膝盖痛，需要吃点什么？"
-# 输出：["查询疾病简介","查询疾病宜吃食物", "查询疾病所需药品"]  # 这个问题可能既询问宜吃的食物，也可能在询问所需药品
-# **示例4：**
-# 输入："我怎样才能避免冬天的流感和感冒？"
-# 输出：["查询疾病简介","查询疾病预防措施"]  # 询问的是预防措施，但因为提到了两种疾病，这里隐含的是对共同预防措施的询问
-# **示例5：**
-# 输入："头疼是什么原因，应该怎么办？"
-# 输出：["查询疾病简介","查询疾病病因", "查询疾病的治疗方法"]  # 用户询问的是头疼的病因和治疗方法
-# **示例6：**
-# 输入："如何知道自己是不是有艾滋病？"
-# 输出：["查询疾病简介","查询疾病所需检查项目","查询疾病病因"]  # 用户想知道自己是不是有艾滋病，一定一定要进行相关检查，这是根本性的！其次是查看疾病的病因，看看自己的行为是不是和病因重合。
-# **示例7：**
-# 输入："我该怎么知道我自己是否得了21三体综合症呢？"
-# 输出：["查询疾病简介","查询疾病所需检查项目","查询疾病病因"]  # 用户想知道自己是不是有21三体综合症，一定一定要进行相关检查(比如染色体)，这是根本性的！其次是查看疾病的病因。
-# **示例8：**
-# 输入："感冒了，怎么办？"
-# 输出：["查询疾病简介","查询疾病的治疗方法","查询疾病所需药品","查询疾病所需检查项目","查询疾病宜吃食物"]  # 问怎么办，首选治疗方法。然后是要给用户推荐一些药，最后让他检查一下身体。同时，也推荐一下食物。
-# **示例9：**
-# 输入："癌症会引发其他疾病吗？"
-# 输出：["查询疾病简介","查询疾病的并发疾病","查询疾病简介"]  # 显然，用户问的是疾病并发疾病，随后可以给用户科普一下癌症简介。
-# **示例10：**
-# 输入："葡萄糖浆的生产者是谁？葡萄糖浆是谁生产的？"
-# 输出：["查询药品的生产商"]  # 显然，用户想要问药品的生产商
-# 通过上述例子，我们希望你能够形成一套系统的思考过程，以准确识别出用户问题中的所有可能查询意图。请仔细分析用户的问题，考虑到其可能的多重含义，确保输出反映了所有相关的查询意图。
-#
-# **注意：**
-# - 你的所有输出，都必须在这个范围内上述**查询类别**范围内，不可创造新的名词与类别！
-# - 参考上述5个示例：在输出查询意图对应的列表之后，请紧跟着用"#"号开始的注释，简短地解释为什么选择这些意图选项。注释应当直接跟在列表后面，形成一条连续的输出。
-# - 你的输出的类别数量不应该超过5，如果确实有很多个，请你输出最有可能的5个！同时，你的解释不宜过长，但是得富有条理性。
-#
-# 现在，你已经知道如何解决问题了，请你解决下面这个问题并将结果输出！
-# 问题输入："{query}"
-# 输出的时候请确保输出内容都在**查询类别**中出现过。确保输出类别个数**不要超过5个**！确保你的解释和合乎逻辑的！注意，如果用户询问了有关疾病的问题，一般都要先介绍一下疾病，也就是有"查询疾病简介"这个需求。
-# 再次检查你的输出都包含在**查询类别**:"查询疾病简介"、"查询疾病病因"、"查询疾病预防措施"、"查询疾病治疗周期"、"查询治愈概率"、"查询疾病易感人群"、"查询疾病所需药品"、"查询疾病宜吃食物"、"查询疾病忌吃食物"、"查询疾病所需检查项目"、"查询疾病所属科目"、"查询疾病的症状"、"查询疾病的治疗方法"、"查询疾病的并发疾病"、"查询药品的生产商"。
-# """
-#     rec_result = ollama.generate(model=choice, prompt=prompt)['response']
-#     print(f'意图识别结果:{rec_result}')
-#     return rec_result
-#     # response, _ = glm_model.chat(glm_tokenizer, prompt, history=[])
-#     # return response
-#
-#
-# def add_shuxing_prompt(entity,shuxing,client):
-#     add_prompt = ""
-#     try:
-#         sql_q = "match (a:疾病{名称:'%s'}) return a.%s" % (entity,shuxing)
-#         res = client.run(sql_q).data()[0].values()
-#         add_prompt+=f"<提示>"
-#         add_prompt+=f"用户对{entity}可能有查询{shuxing}需求，知识库内容如下："
-#         if len(res)>0:
-#             join_res = "".join(res)
-#             add_prompt+=join_res
-#         else:
-#             add_prompt+="图谱中无信息，查找失败。"
-#         add_prompt+=f"</提示>"
-#     except:
-#         pass
-#     return add_prompt
-#
-# def add_lianxi_prompt(entity,lianxi,target,client):
-#     add_prompt = ""
-#
-#     try:
-#         sql_q = "match (a:疾病{名称:'%s'})-[r:%s]->(b:%s) return b.名称" % (entity,lianxi,target)
-#         res = client.run(sql_q).data()#[0].values()
-#         res = [list(data.values())[0] for data in res]
-#         add_prompt+=f"<提示>"
-#         add_prompt+=f"用户对{entity}可能有查询{lianxi}需求，知识库内容如下："
-#         if len(res)>0:
-#             join_res = "、".join(res)
-#             add_prompt+=join_res
-#         else:
-#             add_prompt+="图谱中无信息，查找失败。"
-#         add_prompt+=f"</提示>"
-#     except:
-#         pass
-#     return add_prompt
-#
-# def generate_prompt(response,query,client,bert_model, bert_tokenizer,rule, tfidf_r, device, idx2tag):
-#     entities = zwk.get_ner_result(bert_model, bert_tokenizer, query, rule, tfidf_r, device, idx2tag)
-#     # print(response)
-#     # print(entities)
-#     yitu = []
-#     prompt = "<指令>你是一个医疗问答机器人，你需要根据给定的提示回答用户的问题。请注意，你的全部回答必须完全基于给定的提示，不可自由发挥。如果根据提示无法给出答案，立刻回答“根据已知信息无法回答该问题”。</指令>"
-#     prompt +="<指令>请你仅针对医疗类问题提供简洁和专业的回答。如果问题不是医疗相关的，你一定要回答“我只能回答医疗相关的问题。”，以明确告知你的回答限制。</指令>"
-#     if '疾病症状' in entities and  '疾病' not in entities:
-#         sql_q = "match (a:疾病)-[r:疾病的症状]->(b:疾病症状 {名称:'%s'}) return a.名称" % (entities['疾病症状'])
-#         res = list(client.run(sql_q).data()[0].values())
-#         # print('res=',res)
-#         if len(res)>0:
-#             entities['疾病'] = random.choice(res)
-#             all_en = "、".join(res)
-#             prompt+=f"<提示>用户有{entities['疾病症状']}的情况，知识库推测其可能是得了{all_en}。请注意这只是一个推测，你需要明确告知用户这一点。</提示>"
-#     pre_len = len(prompt)
-#     if "简介" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'疾病简介',client)
-#             yitu.append('查询疾病简介')
-#     if "病因" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'疾病病因',client)
-#             yitu.append('查询疾病病因')
-#     if "预防" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'预防措施',client)
-#             yitu.append('查询预防措施')
-#     if "治疗周期" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'治疗周期',client)
-#             yitu.append('查询治疗周期')
-#     if "治愈概率" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'治愈概率',client)
-#             yitu.append('查询治愈概率')
-#     if "易感人群" in response:
-#         if '疾病' in entities:
-#             prompt+=add_shuxing_prompt(entities['疾病'],'疾病易感人群',client)
-#             yitu.append('查询疾病易感人群')
-#     if "药品" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病使用药品','药品',client)
-#             yitu.append('查询疾病使用药品')
-#     if "宜吃食物" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病宜吃食物','食物',client)
-#             yitu.append('查询疾病宜吃食物')
-#     if "忌吃食物" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病忌吃食物','食物',client)
-#             yitu.append('查询疾病忌吃食物')
-#     if "检查项目" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病所需检查','检查项目',client)
-#             yitu.append('查询疾病所需检查')
-#     if "查询疾病所属科目" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病所属科目','科目',client)
-#             yitu.append('查询疾病所属科目')
-#     # if "所属科目" in response:
-#     #     if '疾病' in entities:
-#     #         prompt+=add_lianxi_prompt(entities['疾病'],'疾病所属科目','科目')
-#     #         yitu.append('查询疾病所属科目')
-#     if "症状" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病的症状','疾病症状',client)
-#             yitu.append('查询疾病的症状')
-#     if "治疗" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'治疗的方法','治疗方法',client)
-#             yitu.append('查询治疗的方法')
-#     if "并发" in response:
-#         if '疾病' in entities:
-#             prompt+=add_lianxi_prompt(entities['疾病'],'疾病并发疾病','疾病',client)
-#             yitu.append('查询疾病并发疾病')
-#     if "生产商" in response:
-#         try:
-#             sql_q = "match (a:药品商)-[r:生产]->(b:药品{名称:'%s'}) return a.名称" % (entities['药品'])
-#             res = client.run(sql_q).data()[0].values()
-#             prompt+=f"<提示>"
-#             prompt+=f"用户对{entities['药品']}可能有查询药品生产商的需求，知识图谱内容如下："
-#             if len(res)>0:
-#                 prompt+="".join(res)
-#             else:
-#                 prompt+="图谱中无信息，查找失败"
-#             prompt+=f"</提示>"
-#         except:
-#             pass
-#         yitu.append('查询药物生产商')
-#     if pre_len==len(prompt) :
-#         prompt += f"<提示>提示：知识库异常，没有相关信息！请你直接回答“根据已知信息无法回答该问题”！</提示>"
-#     prompt += f"<用户问题>{query}</用户问题>"
-#     prompt += f"<注意>现在你已经知道给定的“<提示></提示>”和“<用户问题></用户问题>”了,你要极其认真的判断提示里是否有用户问题所需的信息，如果没有相关信息，你必须直接回答“根据已知信息无法回答该问题”。</注意>"
-#
-#     prompt += f"<注意>你一定要再次检查你的回答是否完全基于“<提示></提示>”的内容，不可产生提示之外的答案！换而言之，你的任务是根据用户的问题，将“<提示></提示>”整理成有条理、有逻辑的语句。你起到的作用仅仅是整合提示的功能，你一定不可以利用自身已经存在的知识进行回答，你必须从提示中找到问题的答案！</注意>"
-#     prompt += f"<注意>你必须充分的利用提示中的知识，不可将提示中的任何信息遗漏，你必须做到对提示信息的充分整合。你回答的任何一句话必须在提示中有所体现！如果根据提示无法给出答案，你必须回答“根据已知信息无法回答该问题”。<注意>"
-#
-#
-#     print(f'prompt:{prompt}')
-#     return prompt,"、".join(yitu),entities
-
-
-# 流式输出
-# def ans_stream(prompt):
-#
-#     result = ""
-#     for res,his in glm_model.stream_chat(glm_tokenizer, prompt, history=[]):
-#         yield res
-
-
+        # 使用 Pyvis 生成可视化
+        net = Network(height="500px", width="100%", bgcolor="#222222", font_color="white")
+        # 避免 notebook 模式导致的问题
+        net.force_atlas_2based()
+        net.from_nx(G)
+        
+        # 保存到临时文件
+        path = os.path.join(WORKING_DIR, "temp_graph.html")
+        net.save_graph(path)
+        
+        with open(path, 'r', encoding='utf-8') as f:
+            html_string = f.read()
+            
+        return html_string, "Success"
+        
+    except Exception as e:
+        return None, str(e)
 
 def main(is_admin, usname):
-    # cache_model = 'best_roberta_rnn_model_ent_aug'
-    st.title(f"医疗智能问答机器人")
+    # 初始化RAG (带缓存)
+    rag = init_rag()
+    
+    st.title(f"医疗智能问答机器人 (基于动态知识图谱)")
 
     with st.sidebar:
         col1, col2 = st.columns([0.6, 0.6])
         with col1:
-            # 将 use_column_width 替换为 use_container_width
             st.image(os.path.join("img", "logo.jpg"), use_container_width=True)
 
         st.caption(
-            f"""<p align="left">欢迎您，{'管理员' if is_admin else '用户'}{usname}！当前版本：{1.0}</p>""",
+            f"""<p align="left">欢迎您，{'管理员' if is_admin else '用户'}{usname}！</p>""",
             unsafe_allow_html=True,
         )
 
+        # 对话窗口管理
         if 'chat_windows' not in st.session_state:
             st.session_state.chat_windows = [[]]
             st.session_state.messages = [[]]
@@ -342,119 +158,71 @@ def main(is_admin, usname):
         selected_window = st.selectbox('请选择对话窗口:', window_options)
         active_window_index = int(selected_window.split()[1]) - 1
 
-
-        # 选择模型
-        # selected_option = st.selectbox(
-        #     label='请选择大语言模型:',
-        #     options=['Qwen 1.5', 'Llama2-Chinese']
-        # )
-        # choice = 'qwen:32b' if selected_option == 'Qwen 1.5' else 'llama2-chinese:13b-chat-q8_0'
-
-
-        # 意图识别
-        # show_ent = show_int = show_prompt = False
-        # if is_admin:
-        #     show_ent = st.sidebar.checkbox("显示实体识别结果")
-        #     show_int = st.sidebar.checkbox("显示意图识别结果")
-        #     show_prompt = st.sidebar.checkbox("显示查询的知识库信息")
-        #     if st.button('修改知识图谱'):
-        #     # 显示一个链接，用户可以点击这个链接在新标签页中打开百度
-        #         st.markdown('[点击这里修改知识图谱](http://127.0.0.1:7474/)', unsafe_allow_html=True)
-
-
+        # --- 改造点1：动态更新模块 ---
+        st.markdown("---")
+        st.subheader("🌐 动态知识注入 (模拟)")
+        st.info("用于演示：模拟从新闻流中获取最新医疗资讯并更新图谱。")
+        selected_news = st.selectbox("选择模拟新闻事件", FAKE_NEWS_DATA)
+        
+        if st.button("注入并更新知识库"):
+            with st.spinner("正在抽取实体关系并更新图谱..."):
+                rag.insert(selected_news)
+                st.success("更新成功！新知识已融入图谱。")
+                # 强制刷新图谱缓存（如果有必要）
+        
+        # --- 改造点2：图谱可视化入口 ---
+        st.markdown("---")
+        st.subheader("🕸️ 知识图谱可视化")
+        vis_entity = st.text_input("输入实体查看关联子图", placeholder="留空查看全局概览")
+        if st.button("生成/刷新拓扑图"):
+            st.session_state.show_graph = True
+            st.session_state.vis_entity = vis_entity
 
         if st.button("返回登录"):
             st.session_state.logged_in = False
             st.session_state.admin = False
-            # 将 st.experimental_rerun() 替换为 st.rerun()
             st.rerun()
 
-    # 加载模型
-    # glm_tokenizer, glm_model, bert_tokenizer, bert_model, idx2tag, rule, tfidf_r, device = load_model(cache_model)
-
-    # client = py2neo.Graph('http://localhost:7687', user='neo4j', password='12345678', name='neo4j')
-
+    # 主界面逻辑
     current_messages = st.session_state.messages[active_window_index]
+
+    # 显示图谱 (如果被触发)
+    if st.session_state.get('show_graph', False):
+        with st.expander("🕸️ 当前知识图谱拓扑结构", expanded=True):
+            html_data, msg = visualize_graph(rag, st.session_state.get('vis_entity'))
+            if html_data:
+                components.html(html_data, height=520, scrolling=True)
+            else:
+                st.warning(f"可视化生成失败或无数据: {msg}")
+            
+            if st.button("关闭图谱"):
+                st.session_state.show_graph = False
+                st.rerun()
 
     # 显示历史消息
     for message in current_messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # 区分不同类别大模型的信息，加上不同的提示
-    # for message in current_messages:
-    #     with st.chat_message(message["role"]):
-    #         st.markdown(message["content"])
-    #         if message["role"] == "assistant":
-    #             if show_ent:
-    #                 with st.expander("实体识别结果"):
-    #                     st.write(message.get("ent", ""))
-    #             if show_int:
-    #                 with st.expander("意图识别结果"):
-    #                     st.write(message.get("yitu", ""))
-    #             if show_prompt:
-    #                 with st.expander("点击显示知识库信息"):
-    #                     st.write(message.get("prompt", ""))
-
-    # 检测到用户输入
-    if query := st.chat_input("Ask me anything!", key=f"chat_input_{active_window_index}"):
-        # 显示用户当前输入
+    # 处理用户输入
+    if query := st.chat_input("请输入您的医疗问题...", key=f"chat_input_{active_window_index}"):
         current_messages.append({"role": "user", "content": query})
         with st.chat_message("user"):
             st.markdown(query)
 
-
         response_placeholder = st.empty()
-        # response_placeholder.text("正在进行意图识别...")
-        response_placeholder.text("正在查找数据库内容...")
+        response_placeholder.text("正在检索知识图谱并生成回答...")
 
-        # 从current_messages中提取出最后一条消息的内容，即用户的输入query
-        query = current_messages[-1]["content"]
-
-        # 输出意图识别结果
-        # response = Intent_Recognition(query, choice)
-        # response_placeholder.empty()
-
-        # 生成提示prompt
-        # prompt, yitu, entities = generate_prompt(response, query, client, bert_model, bert_tokenizer, rule, tfidf_r, device, idx2tag)
-
-        # last承接大模型输出
-        # last = ""
-        # for chunk in ollama.chat(model=choice, messages=[{'role': 'user', 'content': prompt}], stream=True):
-        #     last += chunk['message']['content']
-        #     response_placeholder.markdown(last)
-        # response_placeholder.markdown("")
-
-        last = rag.query(query, param=QueryParam(mode="hybrid"))
-        print('生成回答：')
-        print(last)
-
-        # rag查完了就去掉 response_placeholder.text("正在查找数据库内容...") 这句显示
+        # RAG 查询
+        # 使用 hybrid 模式以利用图谱和向量的综合优势
+        response = rag.query(query, param=QueryParam(mode="hybrid"))
+        
+        print('生成回答：', response)
         response_placeholder.empty()
 
-        # 添加这部分代码来显示回答
         with st.chat_message("assistant"):
-            st.markdown(last)
+            st.markdown(response)
 
-        # 加载各类结果
-        # knowledge = re.findall(r'<提示>(.*?)</提示>', prompt)
-        # zhishiku_content = "\n".join([f"提示{idx + 1}, {kn}" for idx, kn in enumerate(knowledge) if len(kn) >= 3])
-        # with st.chat_message("assistant"):
-        #     st.markdown(last)
-        #     if show_ent:
-        #         with st.expander("实体识别结果"):
-        #             st.write(str(entities))
-        #     if show_int:
-        #         with st.expander("意图识别结果"):
-        #             st.write(yitu)
-        #     if show_prompt:
-        #         with st.expander("点击显示知识库信息"):
-        #             st.write(zhishiku_content)
-        # # 写入结果
-        # current_messages.append({"role": "assistant", "content": last, "yitu": yitu, "prompt": zhishiku_content, "ent": str(entities)})
-
-        # 写入结果
-        current_messages.append(
-            {"role": "assistant", "content": last})
+        current_messages.append({"role": "assistant", "content": response})
 
     st.session_state.messages[active_window_index] = current_messages
