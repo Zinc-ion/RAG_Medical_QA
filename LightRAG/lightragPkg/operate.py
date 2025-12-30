@@ -1184,7 +1184,9 @@ async def _get_node_data(
     # build prompt
     entites_section_list = [["id", "entity", "type", "description", "rank", "created_at"]]
     for i, n in enumerate(node_datas):
-        created_at = n.get("created_at", "UNKNOWN")
+        created_at = n.get("created_at")
+        if created_at is None:
+            created_at = "UNKNOWN"
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
@@ -1213,7 +1215,9 @@ async def _get_node_data(
         ]
     ]
     for i, e in enumerate(use_relations):
-        created_at = e.get("created_at", "UNKNOWN")
+        created_at = e.get("created_at")
+        if created_at is None:
+            created_at = "UNKNOWN"
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
@@ -1491,7 +1495,9 @@ async def _get_edge_data(
         ]
     ]
     for i, e in enumerate(edge_datas):
-        created_at = e.get("created_at", "Unknown")
+        created_at = e.get("created_at")
+        if created_at is None:
+            created_at = "UNKNOWN"
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
@@ -1511,7 +1517,9 @@ async def _get_edge_data(
 
     entites_section_list = [["id", "entity", "type", "description", "rank", "created_at"]]
     for i, n in enumerate(use_entities):
-        created_at = n.get("created_at", "UNKNOWN")
+        created_at = n.get("created_at")
+        if created_at is None:
+            created_at = "UNKNOWN"
         # Convert timestamp to readable format
         if isinstance(created_at, (int, float)):
             created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
