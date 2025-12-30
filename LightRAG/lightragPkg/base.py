@@ -81,6 +81,9 @@ class QueryParam:
     history_turns: int = 3
     """Number of complete conversation turns (user-assistant pairs) to consider in the response context."""
 
+    thinking: bool = True
+    """If True, enables deep thinking (reasoning) capabilities for the model."""
+
 
 @dataclass
 class StorageNameSpace(ABC):

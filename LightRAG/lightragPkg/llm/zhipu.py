@@ -86,6 +86,35 @@ async def zhipu_complete_if_cache(
         k: v for k, v in kwargs.items() if k not in ["hashing_kv", "keyword_extraction"]
     }
 
+    # Handle thinking parameter specially since it might not be supported in older SDK versions
+    # or needs to be passed differently
+    thinking = kwargs.pop("thinking", None)
+    if thinking:
+        # Check if the installed SDK version supports 'thinking' directly
+        # If not, we might need to verify SDK version or just pass it if we assume latest SDK
+        # Based on user report, direct passing failed.
+        # Let's try to inspect if client.chat.completions.create accepts 'thinking'
+        # But for now, let's keep it in kwargs if it's supposed to be there for GLM-4.7
+        # The user's error says "unexpected keyword argument 'thinking'", which means
+        # the SDK *client* validation is rejecting it.
+        # This usually means the SDK is too old.
+        # However, if we MUST support it with older SDKs that forward **kwargs blindly but validate them,
+        # or if the parameter name is different, we'd change it.
+        # Given it is a new feature, upgrading SDK is the best path.
+        # But since I cannot force upgrade, I will try to add it back to kwargs ONLY if we think it's safe
+        # OR, maybe it needs to be in 'extra_body' for openai-compatible clients but here we use native ZhipuAI client.
+        
+        # Wait, the native ZhipuAI client might wrap openai client or similar.
+        # If it's the *new* ZhipuAI SDK (v2+), it is OpenAI compatible.
+        # If it is OpenAI compatible, non-standard params should go into `extra_body`.
+        # Let's try moving 'thinking' to 'extra_body' if it fails as a direct kwarg.
+        
+        # Let's try to put it in extra_body which is the standard way to pass new/unsupported params
+        # in OpenAI-compatible SDKs (which ZhipuAI v2 is).
+        extra_body = kwargs.get("extra_body", {})
+        extra_body["thinking"] = thinking
+        kwargs["extra_body"] = extra_body
+
     response = client.chat.completions.create(model=model, messages=messages, **kwargs)
 
     logger.info("===== Response from LLM =====")

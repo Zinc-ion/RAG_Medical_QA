@@ -5,6 +5,8 @@ import random
 import re
 import os
 import sys
+import json
+import datetime
 import logging
 import networkx as nx
 from pyvis.network import Network
@@ -31,11 +33,21 @@ logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
 # --- 模拟动态新闻数据流 ---
 FAKE_NEWS_DATA = [
-    """【2024-12-29 突发卫生事件】
-    某地疾控中心报告发现一种新型流感病毒变异株“H9N9-Beta”。
-    症状表现：该变异株除常规流感症状外，显著特征为持续性关节剧痛和结膜充血。
-    治疗方案：初步临床试验显示，抗病毒药物“奥司他韦”联合新药“V-2024”具有显著疗效。
-    传播途径：主要通过呼吸道飞沫传播，潜伏期缩短至12小时。""",
+    """2025年12月16日 健康及卫生
+世界卫生组织本周二指出，随着北半球流感季节提前到来，一种新型流感病毒变种正在快速传播，但接种疫苗依然是最有效的防护手段。
+
+世卫组织流行病与大流行病管理部门全球呼吸道威胁项目负责人张文清在日内瓦向记者表示，当前流感与其他呼吸道病毒正处于激增态势，今年疫情的特点表现为“AH3N2亚型流感病毒的出现与迅速扩散”。
+
+她介绍，这种名为J.2.4.1（亦称“K 型”）的变异株于今年8月首次在澳大利亚和新西兰发现，目前已在超过30个国家监测到其传播。
+
+现有疫苗仍具防护效力
+张文清指出，尽管病毒发生显著基因进化，但目前的流行病学数据并未显示疾病严重程度有所加剧。她解释称，流感病毒持续演变，这正是流感疫苗成分需要定期更新的原因。
+
+她表示，世卫组织通过其长期运行的全球流感监测与应对系统，与国际专家协同追踪病毒变异，评估公共卫生风险，并每年两次更新疫苗成分建议。
+
+她指出，该新变种虽未被纳入本季北半球流感疫苗组分，但早期证据表明，现有季节性疫苗仍能有效预防重症并降低住院风险。
+
+据世卫组织估算，全球每年约有10亿季节性流感病例，其中重症呼吸道感染可达500万例，每年因流感相关呼吸道疾病死亡人数约65万。""",
     
     """【2024-12-30 医疗科技进展】
     Z大学附属医院神经内科团队宣布，“经颅磁刺激（TMS）”在治疗慢性偏头痛方面取得突破。
@@ -49,7 +61,7 @@ FAKE_NEWS_DATA = [
 ]
 
 @st.cache_resource
-def init_rag():
+def init_rag(thinking_mode=True):
     if not os.path.exists(WORKING_DIR):
         os.mkdir(WORKING_DIR)
     
@@ -64,6 +76,7 @@ def init_rag():
         llm_model_max_async=4,
         chunk_token_size=512,
         llm_model_max_token_size=32768,
+        llm_model_kwargs={"thinking": {"type": "enabled"}} if thinking_mode else {"thinking": {"type": "disabled"}},
         embedding_func=EmbeddingFunc(
             embedding_dim=1024,
             max_token_size=8192,
@@ -101,6 +114,54 @@ def visualize_graph(rag_instance, query_entity=None):
         if G is None or len(G.nodes) == 0:
             return None, "暂无图谱数据"
 
+        # --- 新增：注入时间信息 ---
+        try:
+            vdb_path = os.path.join(WORKING_DIR, "vdb_entities.json")
+            if os.path.exists(vdb_path):
+                with open(vdb_path, 'r', encoding='utf-8') as f:
+                    vdb_data = json.load(f)
+                
+                # 构建 实体名 -> 时间 的映射
+                entity_time_map = {item["entity_name"]: item.get("__created_at__") 
+                                 for item in vdb_data.get("data", []) 
+                                 if "entity_name" in item}
+
+                # 遍历图节点并注入时间信息
+                for node_id in G.nodes():
+                    # 注意：G中的节点ID通常带引号，如 '"流感"'
+                    # vdb中的entity_name也通常带引号
+                    created_at = entity_time_map.get(str(node_id))
+                    
+                    # 获取现有属性
+                    node_attrs = G.nodes[node_id]
+                    # 去除可能存在的引号，用于显示
+                    clean_name = str(node_id).strip('"')
+
+                    if created_at:
+                        dt = datetime.datetime.fromtimestamp(created_at)
+                        time_str = dt.strftime('%Y-%m-%d %H:%M:%S')
+                        date_str = dt.strftime('%Y-%m-%d')
+                        
+                        # 设置 label: 名字 + 换行 + 日期
+                        node_attrs["label"] = f"{clean_name}\n{date_str}"
+                        
+                        desc = node_attrs.get("description", "")
+                        
+                        # 避免重复添加 description
+                        if "收录时间" not in desc:
+                            new_desc = f"{desc}\n\n【收录时间】: {time_str}"
+                            node_attrs["description"] = new_desc
+                            # Pyvis默认使用title作为hover提示
+                            node_attrs["title"] = new_desc
+                    else:
+                        # 如果没有时间，且没有设置过label，则设置一个不带引号的label
+                        if "label" not in node_attrs:
+                            node_attrs["label"] = clean_name
+                            
+        except Exception as e:
+            print(f"Warning: Failed to inject time info: {e}")
+        # ------------------------
+
         # 子图过滤逻辑
         if query_entity:
             # 模糊匹配节点ID
@@ -137,20 +198,25 @@ def visualize_graph(rag_instance, query_entity=None):
         return None, str(e)
 
 def main(is_admin, usname):
-    # 初始化RAG (带缓存)
-    rag = init_rag()
-    
-    st.title(f"医疗智能问答机器人 (基于动态知识图谱)")
-
     with st.sidebar:
         col1, col2 = st.columns([0.6, 0.6])
         with col1:
             st.image(os.path.join("img", "logo.jpg"), width="stretch")
 
+        # --- 新增：深度思考开关 (放在顶部以控制初始化) ---
+        enable_thinking = st.checkbox("启用深度思考 (GLM-4.7)", value=True, help="开启后模型将进行深度推理，回复质量更高但速度较慢。")
+
         st.caption(
             f"""<p align="left">欢迎您，{'管理员' if is_admin else '用户'}{usname}！</p>""",
             unsafe_allow_html=True,
         )
+    
+    # 初始化RAG (带缓存，依赖深度思考开关)
+    rag = init_rag(enable_thinking)
+
+    st.title(f"医疗智能问答机器人 (基于动态知识图谱)")
+
+    with st.sidebar:
 
         # 对话窗口管理
         if 'chat_windows' not in st.session_state:
@@ -167,9 +233,9 @@ def main(is_admin, usname):
 
         # --- 改造点1：动态更新模块 ---
         st.markdown("---")
-        st.subheader("🌐 动态知识注入 (模拟)")
-        st.info("用于演示：模拟从新闻流中获取最新医疗资讯并更新图谱。")
-        selected_news = st.selectbox("选择模拟新闻事件", FAKE_NEWS_DATA)
+        st.subheader("🌐 动态知识注入 (模拟从网页获取)")
+        st.info("用于演示：模拟从新闻流中获取最新流感资讯并更新图谱。")
+        selected_news = st.selectbox("选择新闻事件", FAKE_NEWS_DATA)
 
         if st.button("注入并更新知识库"):
             with st.spinner("正在抽取实体关系并更新图谱..."):
@@ -226,7 +292,7 @@ def main(is_admin, usname):
 
         # RAG 查询
         # 使用 hybrid 模式以利用图谱和向量的综合优势
-        response = rag.query(query, param=QueryParam(mode="hybrid"))
+        response = rag.query(query, param=QueryParam(mode="hybrid", thinking=enable_thinking))
         
         print('生成回答：', response)
         response_placeholder.empty()

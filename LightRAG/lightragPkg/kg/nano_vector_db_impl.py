@@ -1,5 +1,7 @@
 import asyncio
 import os
+import json
+import base64
 from typing import Any, final
 from dataclasses import dataclass
 import numpy as np
@@ -9,6 +11,7 @@ import time
 from lightragPkg.utils import (
     logger,
     compute_mdhash_id,
+    write_json,
 )
 import pipmaster as pm
 from lightragPkg.base import (
@@ -39,6 +42,36 @@ class NanoVectorDBStorage(BaseVectorStorage):
         self._client_file_name = os.path.join(
             self.global_config["working_dir"], f"vdb_{self.namespace}.json"
         )
+
+        # --- Fix for loading compatibility ---
+        if os.path.exists(self._client_file_name):
+            try:
+                with open(self._client_file_name, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Check if 'matrix' is a list (our custom save format)
+                if isinstance(data.get("matrix"), list):
+                    logger.info(f"Detected list format in {self._client_file_name}, converting to Base64 for NanoVectorDB compatibility...")
+                    
+                    # Convert list back to numpy array
+                    matrix_array = np.array(data["matrix"], dtype=np.float32)
+                    
+                    # Convert to bytes then Base64 string
+                    matrix_bytes = matrix_array.tobytes()
+                    matrix_base64 = base64.b64encode(matrix_bytes).decode('ascii')
+                    
+                    # Update data
+                    data["matrix"] = matrix_base64
+                    
+                    # Save back to file in the format NanoVectorDB expects
+                    with open(self._client_file_name, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False)
+                    
+                    logger.info(f"Successfully converted {self._client_file_name} to NanoVectorDB compatible format.")
+            except Exception as e:
+                logger.error(f"Error checking/converting VDB file format: {e}")
+        # -------------------------------------
+
         self._max_batch_size = self.global_config["embedding_batch_num"]
         self._client = NanoVectorDB(
             self.embedding_func.embedding_dim, storage_file=self._client_file_name
@@ -153,4 +186,35 @@ class NanoVectorDBStorage(BaseVectorStorage):
 
     async def index_done_callback(self) -> None:
         async with self._save_lock:
-            self._client.save()
+            logger.info(f"Saving NanoVectorDB to {self._client_file_name}")
+            try:
+                self._client.save()
+                logger.info(f"Saved NanoVectorDB to {self._client_file_name} using client.save()")
+            except Exception as e:
+                logger.error(f"Failed to save NanoVectorDB using client.save(): {e}")
+            
+            # Force save using json.dump with custom encoder to ensure persistence
+            try:
+                # Prepare data for NanoVectorDB format (matrix as Base64)
+                # We access the internal storage dict directly
+                storage_data = self.client_storage
+                
+                # Create a copy to avoid modifying the in-memory object used by client
+                save_data = storage_data.copy()
+                
+                # If matrix is a numpy array, convert to Base64
+                if isinstance(save_data.get("matrix"), np.ndarray):
+                     matrix_bytes = save_data["matrix"].tobytes()
+                     save_data["matrix"] = base64.b64encode(matrix_bytes).decode('ascii')
+                # If matrix is a list (fallback), convert to numpy then Base64
+                elif isinstance(save_data.get("matrix"), list):
+                     matrix_array = np.array(save_data["matrix"], dtype=np.float32)
+                     matrix_bytes = matrix_array.tobytes()
+                     save_data["matrix"] = base64.b64encode(matrix_bytes).decode('ascii')
+                
+                with open(self._client_file_name, "w", encoding="utf-8") as f:
+                    json.dump(save_data, f, indent=4, ensure_ascii=False)
+                    
+                logger.info(f"Saved NanoVectorDB to {self._client_file_name} using custom json dump (Base64 format)")
+            except Exception as e:
+                logger.error(f"Failed to save NanoVectorDB using custom json dump: {e}")

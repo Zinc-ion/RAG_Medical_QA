@@ -270,7 +270,7 @@ async def _merge_edges_then_upsert(
                 )
 
     # Process edges_data with None checks
-    weight = sum([dp["weight"] for dp in edges_data] + already_weights)
+    weight = sum([dp.get("weight", 0.0) for dp in edges_data] + already_weights)
     description = GRAPH_FIELD_SEP.join(
         sorted(
             set(
@@ -658,10 +658,16 @@ async def kg_query(
     logger.info(f"[kg_query] Final System Prompt: {sys_prompt}")
     logger.debug(f"[kg_query]Prompt Tokens: {len_of_prompts}")
 
+    # Prepare kwargs for thinking
+    kwargs = {}
+    if hasattr(query_param, "thinking"):
+        kwargs["thinking"] = {"type": "enabled"} if query_param.thinking else {"type": "disabled"}
+
     response = await use_model_func(
         query,
         system_prompt=sys_prompt,
         stream=query_param.stream,
+        **kwargs
     )
     if isinstance(response, str) and len(response) > len(sys_prompt):
         response = (
@@ -954,10 +960,16 @@ async def mix_kg_vector_query(
     logger.debug(f"[mix_kg_vector_query]Prompt Tokens: {len_of_prompts}")
 
     # 6. Generate response
+    # Prepare kwargs for thinking
+    kwargs = {}
+    if hasattr(query_param, "thinking"):
+        kwargs["thinking"] = {"type": "enabled"} if query_param.thinking else {"type": "disabled"}
+
     response = await use_model_func(
         query,
         system_prompt=sys_prompt,
         stream=query_param.stream,
+        **kwargs
     )
 
     # 清理响应内容
@@ -1228,7 +1240,7 @@ async def _get_node_data(
                 e["src_tgt"][1],
                 e["description"],
                 e["keywords"],
-                e["weight"],
+                e.get("weight", 0.0),
                 e["rank"],
                 created_at,
             ]
@@ -1508,7 +1520,7 @@ async def _get_edge_data(
                 e["tgt_id"],
                 e["description"],
                 e["keywords"],
-                e["weight"],
+                e.get("weight", 0.0),
                 e["rank"],
                 created_at,
             ]
@@ -1884,10 +1896,16 @@ async def kg_query_with_keywords(
     len_of_prompts = len(encode_string_by_tiktoken(query + sys_prompt))
     logger.debug(f"[kg_query_with_keywords]Prompt Tokens: {len_of_prompts}")
 
+    # Prepare kwargs for thinking
+    kwargs = {}
+    if hasattr(query_param, "thinking"):
+        kwargs["thinking"] = {"type": "enabled"} if query_param.thinking else {"type": "disabled"}
+
     response = await use_model_func(
         query,
         system_prompt=sys_prompt,
         stream=query_param.stream,
+        **kwargs
     )
     if isinstance(response, str) and len(response) > len(sys_prompt):
         response = (
