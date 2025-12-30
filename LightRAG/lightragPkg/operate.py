@@ -1349,7 +1349,7 @@ async def _find_most_related_edges_from_entities(
         ),
     )
     all_edges_data = [
-        {"src_tgt": k, "rank": d, **v}
+        {"src_tgt": k, "rank": d, "created_at": v.get("created_at", v.get("createtime")), **v}
         for k, v, d in zip(all_edges, all_edges_pack, all_edges_degree)
         if v is not None
     ]
@@ -1509,8 +1509,12 @@ async def _get_edge_data(
         )
     relations_context = list_of_list_to_csv(relations_section_list)
 
-    entites_section_list = [["id", "entity", "type", "description", "rank"]]
+    entites_section_list = [["id", "entity", "type", "description", "rank", "created_at"]]
     for i, n in enumerate(use_entities):
+        created_at = n.get("created_at", "UNKNOWN")
+        # Convert timestamp to readable format
+        if isinstance(created_at, (int, float)):
+            created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
         entites_section_list.append(
             [
                 i,
@@ -1518,6 +1522,7 @@ async def _get_edge_data(
                 n.get("entity_type", "UNKNOWN"),
                 n.get("description", "UNKNOWN"),
                 n["rank"],
+                created_at,
             ]
         )
     entities_context = list_of_list_to_csv(entites_section_list)
@@ -1560,7 +1565,7 @@ async def _find_most_related_entities_from_relationships(
         ),
     )
     node_datas = [
-        {**n, "entity_name": k, "rank": d}
+        {**n, "entity_name": k, "rank": d, "created_at": n.get("created_at", n.get("createtime"))}
         for k, n, d in zip(entity_names, node_datas, node_degrees)
     ]
 
