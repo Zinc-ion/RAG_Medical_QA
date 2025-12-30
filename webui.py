@@ -145,7 +145,7 @@ def main(is_admin, usname):
     with st.sidebar:
         col1, col2 = st.columns([0.6, 0.6])
         with col1:
-            st.image(os.path.join("img", "logo.jpg"), use_container_width=True)
+            st.image(os.path.join("img", "logo.jpg"), width="stretch")
 
         st.caption(
             f"""<p align="left">欢迎您，{'管理员' if is_admin else '用户'}{usname}！</p>""",
@@ -170,9 +170,13 @@ def main(is_admin, usname):
         st.subheader("🌐 动态知识注入 (模拟)")
         st.info("用于演示：模拟从新闻流中获取最新医疗资讯并更新图谱。")
         selected_news = st.selectbox("选择模拟新闻事件", FAKE_NEWS_DATA)
-        
+
         if st.button("注入并更新知识库"):
             with st.spinner("正在抽取实体关系并更新图谱..."):
+                # --- 新增调试代码 ---
+                print(f"【DEBUG】正在插入的新闻长度: {len(selected_news)} 字符")
+                print(f"【DEBUG】新闻前50字: {selected_news[:50]}")
+                # ------------------
                 rag.insert(selected_news)
                 st.success("更新成功！新知识已融入图谱。")
                 # 强制刷新图谱缓存（如果有必要）

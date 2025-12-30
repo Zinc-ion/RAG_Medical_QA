@@ -76,8 +76,9 @@ async def zhipu_complete_if_cache(
     messages.append({"role": "user", "content": prompt})
 
     # Add debug logging
-    logger.debug("===== Query Input to LLM =====")
-    logger.debug(f"Query: {prompt}")
+    logger.info("===== Query Input to LLM =====")
+    logger.info(f"Query: {prompt}")
+    logger.info(f"System prompt: {system_prompt}")
     verbose_debug(f"System prompt: {system_prompt}")
 
     # Remove unsupported kwargs
@@ -87,6 +88,9 @@ async def zhipu_complete_if_cache(
 
     response = client.chat.completions.create(model=model, messages=messages, **kwargs)
 
+    logger.info("===== Response from LLM =====")
+    logger.info(response.choices[0].message.content)
+
     return response.choices[0].message.content
 
 
@@ -95,6 +99,13 @@ async def zhipu_complete(
 ):
     # Pop keyword_extraction from kwargs to avoid passing it to zhipu_complete_if_cache
     keyword_extraction = kwargs.pop("keyword_extraction", None)
+    
+    # Get model name from kwargs or global config
+    model_name = kwargs.get("model")
+    if not model_name and "hashing_kv" in kwargs:
+        model_name = kwargs["hashing_kv"].global_config.get("llm_model_name")
+    if not model_name:
+        model_name = "glm-4-flashx"
 
     if keyword_extraction:
         # Add a system prompt to guide the model to return JSON format
@@ -122,6 +133,7 @@ async def zhipu_complete(
                 prompt=prompt,
                 system_prompt=system_prompt,
                 history_messages=history_messages,
+                model=model_name,
                 **kwargs,
             )
 
@@ -163,6 +175,7 @@ async def zhipu_complete(
             prompt=prompt,
             system_prompt=system_prompt,
             history_messages=history_messages,
+            model=model_name,
             **kwargs,
         )
 

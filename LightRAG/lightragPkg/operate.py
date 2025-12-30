@@ -634,6 +634,7 @@ async def kg_query(
     if query_param.only_need_context:
         return context
     if context is None:
+        logger.warning("Context is None, returning fail response")
         return PROMPTS["fail_response"]
 
     # Process conversation history
@@ -654,6 +655,7 @@ async def kg_query(
         return sys_prompt
 
     len_of_prompts = len(encode_string_by_tiktoken(query + sys_prompt))
+    logger.info(f"[kg_query] Final System Prompt: {sys_prompt}")
     logger.debug(f"[kg_query]Prompt Tokens: {len_of_prompts}")
 
     response = await use_model_func(
@@ -1104,7 +1106,7 @@ async def _get_node_data(
         logger.warning("Some nodes are missing, maybe the storage is damaged")
 
     node_datas = [
-        {**n, "entity_name": k["entity_name"], "rank": d}
+        {**n, "entity_name": k["entity_name"], "rank": d, "created_at": k.get("__created_at__", None)}
         for k, n, d in zip(results, node_datas, node_degrees)
         if n is not None
     ]  # what is this text_chunks_db doing.  dont remember it in airvx.  check the diagram.
@@ -1180,8 +1182,12 @@ async def _get_node_data(
     )
 
     # build prompt
-    entites_section_list = [["id", "entity", "type", "description", "rank"]]
+    entites_section_list = [["id", "entity", "type", "description", "rank", "created_at"]]
     for i, n in enumerate(node_datas):
+        created_at = n.get("created_at", "UNKNOWN")
+        # Convert timestamp to readable format
+        if isinstance(created_at, (int, float)):
+            created_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(created_at))
         entites_section_list.append(
             [
                 i,
@@ -1189,6 +1195,7 @@ async def _get_node_data(
                 n.get("entity_type", "UNKNOWN"),
                 n.get("description", "UNKNOWN"),
                 n["rank"],
+                created_at,
             ]
         )
     entities_context = list_of_list_to_csv(entites_section_list)
