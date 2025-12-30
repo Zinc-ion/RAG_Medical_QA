@@ -80,28 +80,16 @@ text23 = """
 王大燕表示，预计我国南方省份、北方省份会逐渐进入流感高发期，并出现秋冬季的流感流行高峰，将呈季节性流行。在此期间，流感聚集性疫情可能会增多，聚集性疫情主要发生在学校、幼托机构、养老机构等人群密集的场所，要注意提前做好防控准备。
 """
 
-text20 = """
-2020年12月22日 健康及卫生
-世界卫生组织21日就英国近期发现的变异新冠病毒发布首份详细信息，表示目前没有理由认定变异病毒比现有病毒更加凶险，也没有证据显示其将使现有的疫苗或治疗方法失效，但仍需开展更多研究调查。该组织同时建议各国检查目前使用的荧光定量检测（即PCR检测）是否会受到影响，建议平行使用针对不同基因的多项检测以保障有效性。
+text25_01 = """
+2025年12月5日 健康及卫生
+世界卫生组织周五通报，美国自2024年初以来确诊第71例人类感染甲型禽流感病例，其中11月15日报告的病例经美国疾病控制与预防中心实验室测序确认感染H5N5流感病毒。这是全球首例由H5N5禽流感病毒引发的人类感染病例。
 
-变异病毒
-世卫组织表示，该组织于今年12月14日接到英国政府通报，称该国境内发现一种变异的新型冠状病毒，根据发现时间将其命名为SARS-CoV-2 VUI 202012/01，意为正在接受调查的、2020年12月第一号变异新冠病毒。
+H5N5流感病毒是一种甲型禽流感病毒，主要感染家禽和野鸟，是禽流感的典型病毒来源。人类感染极为罕见，多发生在直接接触受感染禽类或其分泌物的情况下，目前尚无证据显示该病毒可在人际间持续传播。该病毒属于高度致病性禽流感病毒，能够引起禽类严重疾病和高死亡率。世卫组织评估，公众总体感染风险低，但从事禽类养殖、屠宰或防疫工作的人员职业暴露风险为低至中等水平。为防控病毒扩散，建议采取禽类隔离、扑杀感染禽类、佩戴个人防护装备，并对接触者进行追踪和检测，同时加强全球监测与病毒信息共享。
 
-世卫组织表示，12月初，英格兰东南部的新冠患者数量突然激增，在14天内增加了三倍以上，此后所开展的流行病学和病毒学调查发现了这种变异病毒。现有研究认为，今年9月20日在英格兰东南部的肯特郡出现了首例受到该变异病毒感染的病例，10月5日至12月13日期间，在对英格兰东南部确诊患者所进行的常规病毒基因测序中，发现此种变异病毒的概率达到50%以上，大多数感染者的年龄都在60岁以下。
-
-世卫组织表示，该变异病毒中包含14个氨基酸突变和3个蛋白质构件缺失，部分变异可能影响其在人群中的传播能力。其中一种被命名为N501Y的变异在英国和南非分别出现，但两者之间并无关联。
-
-在英国所开展的初步研究显示，该变异病毒的传播能力较此前提升了40-70%，除英国外，澳大利亚、丹麦、意大利、冰岛与荷兰等国也已报告发现了这种变异病毒。
-
-世卫组织表示，有关此种变异病毒生物学特性，及其对临床症状严重程度、抗体反应和疫苗有效性的研究目前正在开展，仍需等待研究结果和进一步的信息。
-
-公共卫生应对措施
-世卫组织表示，英国政府已将该变异病毒的基因数据上传至“全球共享所有流感数据行动数据库”（GISAID），同时正密切监测国内情况，并开展进一步的流行病学和病毒学调查。
-
-英国政府同时于12月19日将该国受影响地区的防控级别上调至最高的四级，相关措施包括减少社交聚会、严格出行限制、要求尽可能居家办公，以及关闭非必要商户等。
+世卫组织表示，美国卫生部门正持续开展流行病学调查，并追踪接触者，目前未发现其他病例。鉴于流感病毒持续变异，世卫组织再次强调全球监测的重要性，以便及时发现可能影响人类健康的新兴或流行流感病毒，并共享病毒学、流行病学及临床信息进行风险评估。
 """
 
-text25 = """
+text25_02 = """
 2025年12月16日 健康及卫生
 世界卫生组织本周二指出，随着北半球流感季节提前到来，一种新型流感病毒变种正在快速传播，但接种疫苗依然是最有效的防护手段。
 
@@ -123,19 +111,19 @@ text25 = """
 # Mocking the system time for each insert to simulate different ingestion times
 
 
-with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
-     patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
-    target_date = datetime(2009, 12, 23)
-    mock_datetime.now.return_value = target_date
-    mock_time.time.return_value = target_date.timestamp()
-    rag.insert(text09)
-
 # with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
 #      patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
-#     target_date = datetime(2020, 12, 22)
+#     target_date = datetime(2009, 12, 23)
 #     mock_datetime.now.return_value = target_date
 #     mock_time.time.return_value = target_date.timestamp()
-#     rag.insert(text20)
+#     rag.insert(text09)
+
+with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
+     patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
+    target_date = datetime(2025, 12, 5)
+    mock_datetime.now.return_value = target_date
+    mock_time.time.return_value = target_date.timestamp()
+    rag.insert(text25_01)
 
 # with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
 #      patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
