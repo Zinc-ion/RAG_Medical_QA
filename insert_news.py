@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(description='Insert news into LightRAG')
 parser.add_argument('--thinking', action='store_true', help='Enable deep thinking (GLM-4.7)')
 args = parser.parse_args()
 
-WORKING_DIR = "./dickens"  #存放数据的目录
+WORKING_DIR = "./data/dickens"  #存放数据的目录
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -118,12 +118,12 @@ text25_02 = """
 #     mock_time.time.return_value = target_date.timestamp()
 #     rag.insert(text09)
 
-with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
-     patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
-    target_date = datetime(2025, 12, 5)
-    mock_datetime.now.return_value = target_date
-    mock_time.time.return_value = target_date.timestamp()
-    rag.insert(text25_01)
+# with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
+#      patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
+#     target_date = datetime(2025, 12, 5)
+#     mock_datetime.now.return_value = target_date
+#     mock_time.time.return_value = target_date.timestamp()
+#     rag.insert(text25_01)
 
 # with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
 #      patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
@@ -133,9 +133,9 @@ with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
 #     rag.insert(text23)
 
 
-# with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
-#      patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
-#     target_date = datetime(2025, 12, 16)
-#     mock_datetime.now.return_value = target_date
-#     mock_time.time.return_value = target_date.timestamp()
-#     rag.insert(text25)
+with patch("lightragPkg.lightrag.datetime") as mock_datetime, \
+     patch("lightragPkg.kg.nano_vector_db_impl.time") as mock_time:
+    target_date = datetime(2025, 12, 16)
+    mock_datetime.now.return_value = target_date
+    mock_time.time.return_value = target_date.timestamp()
+    rag.insert(text25_02)
