@@ -14941,3 +14941,44 @@ Add sections and commentary to the response as appropriate for the length and fo
 2025-12-31 14:36:16,243 - lightragPkg - INFO - Loaded graph from ./data/dickens-0c\graph_chunk_entity_relation.graphml with 25 nodes, 36 edges
 2025-12-31 14:36:16,264 - lightragPkg - INFO - Loaded document status storage with 3 records
 2025-12-31 14:36:16,264 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 14:39:55,617 - lightragPkg - INFO - Logger initialized for working directory: ./data/dickens-0c
+2025-12-31 14:39:55,688 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-12-31 14:39:55,690 - lightragPkg - INFO - Load KV full_docs with 3 data
+2025-12-31 14:39:55,690 - lightragPkg - INFO - Load KV text_chunks with 8 data
+2025-12-31 14:40:24,042 - lightragPkg - INFO - Loaded graph from ./data/dickens-0c\graph_chunk_entity_relation.graphml with 25 nodes, 36 edges
+2025-12-31 14:40:24,079 - lightragPkg - INFO - Loaded document status storage with 3 records
+2025-12-31 14:40:24,080 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 14:46:31,109 - lightragPkg - INFO - Logger initialized for working directory: ./data/dickens-0c
+2025-12-31 14:46:31,200 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-12-31 14:46:31,202 - lightragPkg - INFO - Load KV full_docs with 3 data
+2025-12-31 14:46:31,203 - lightragPkg - INFO - Load KV text_chunks with 8 data
+2025-12-31 14:46:59,618 - lightragPkg - INFO - Loaded graph from ./data/dickens-0c\graph_chunk_entity_relation.graphml with 25 nodes, 36 edges
+2025-12-31 14:46:59,653 - lightragPkg - INFO - Loaded document status storage with 3 records
+2025-12-31 14:46:59,653 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 14:48:30,782 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 14:48:30,787 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-12-31 15:12:42,510 - lightragPkg - INFO - Logger initialized for working directory: ./data\dickens-0c
+2025-12-31 15:12:42,609 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-12-31 15:12:42,626 - lightragPkg - INFO - Load KV full_docs with 3 data
+2025-12-31 15:12:42,626 - lightragPkg - INFO - Load KV text_chunks with 8 data
+2025-12-31 15:13:10,588 - lightragPkg - INFO - Loaded graph from ./data\dickens-0c\graph_chunk_entity_relation.graphml with 25 nodes, 36 edges
+2025-12-31 15:13:10,641 - lightragPkg - INFO - Loaded document status storage with 3 records
+2025-12-31 15:13:10,641 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 15:13:43,756 - lightragPkg - INFO - Logger initialized for working directory: ./data\dickens-1c
+2025-12-31 15:13:43,768 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-12-31 15:13:43,792 - lightragPkg - INFO - Load KV full_docs with 4 data
+2025-12-31 15:13:43,815 - lightragPkg - INFO - Load KV text_chunks with 11 data
+2025-12-31 15:13:43,847 - lightragPkg - INFO - Loaded graph from ./data\dickens-1c\graph_chunk_entity_relation.graphml with 38 nodes, 67 edges
+2025-12-31 15:13:43,965 - lightragPkg - INFO - Loaded document status storage with 4 records
+2025-12-31 15:13:43,965 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 15:14:29,927 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 15:14:29,934 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-12-31 15:15:23,216 - lightragPkg - INFO - Creating a new event loop in main thread.
+2025-12-31 15:15:23,222 - lightragPkg - INFO - Non-embedding cached hit(mode:hybrid type:query)
+2025-12-31 15:19:30,790 - lightragPkg - INFO - Logger initialized for working directory: ./data\dickens
+2025-12-31 15:19:30,825 - lightragPkg - INFO - Load KV llm_response_cache with 2 data
+2025-12-31 15:19:30,826 - lightragPkg - INFO - Load KV full_docs with 4 data
+2025-12-31 15:19:30,828 - lightragPkg - INFO - Load KV text_chunks with 11 data
+2025-12-31 15:19:30,835 - lightragPkg - INFO - Loaded graph from ./data\dickens\graph_chunk_entity_relation.graphml with 38 nodes, 67 edges
+2025-12-31 15:19:30,855 - lightragPkg - INFO - Loaded document status storage with 4 records
+2025-12-31 15:19:30,855 - lightragPkg - INFO - Creating a new event loop in main thread.

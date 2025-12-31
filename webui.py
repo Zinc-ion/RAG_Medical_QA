@@ -27,7 +27,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'LightRAG'))
 # 加载.env文件
 load_dotenv()
 
-WORKING_DIR = "./data/dickens-0c"  #存放数据的目录
+DATA_BASE_DIR = "./data"  # 数据根目录
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -76,16 +76,16 @@ text23 = """
 FAKE_NEWS_DATA = [ text25_02, text23, text09 ]
 
 @st.cache_resource
-def init_rag(thinking_mode=True):
-    if not os.path.exists(WORKING_DIR):
-        os.mkdir(WORKING_DIR)
+def init_rag(working_dir, thinking_mode=True):
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)
     
     api_key = os.environ.get("ZHIPUAI_API_KEY")
     if api_key is None:
         raise Exception("Please set ZHIPU_API_KEY in your environment")
     
     rag = LightRAG(
-        working_dir=WORKING_DIR,
+        working_dir=working_dir,
         llm_model_func=zhipu_complete,
         llm_model_name="glm-4.7",
         llm_model_max_async=4,
@@ -104,7 +104,7 @@ def init_rag(thinking_mode=True):
     )
     return rag
 
-def visualize_graph(rag_instance, query_entity=None):
+def visualize_graph(rag_instance, working_dir, query_entity=None):
     """
     生成知识图谱的可视化HTML
     """
@@ -122,16 +122,37 @@ def visualize_graph(rag_instance, query_entity=None):
                 G = storage_inst
         
         if G is None or len(G.nodes) == 0:
-            graph_path = os.path.join(WORKING_DIR, "graph_chunk_entity_relation.graphml")
+            graph_path = os.path.join(working_dir, "graph_chunk_entity_relation.graphml")
             if os.path.exists(graph_path):
                 G = nx.read_graphml(graph_path)
         
         if G is None or len(G.nodes) == 0:
             return None, "暂无图谱数据"
 
-        # --- 新增：注入时间信息 ---
+        # --- 核心修复：先Copy再修改，防止状态污染 ---
+        
+        # 1. 子图过滤与复制
+        if query_entity:
+            # 模糊匹配节点ID
+            nodes = [n for n in G.nodes() if query_entity in str(n)]
+            if nodes:
+                # 提取一跳邻居
+                subgraph_nodes = set(nodes)
+                for n in nodes:
+                    subgraph_nodes.update(G.neighbors(n))
+                G = G.subgraph(subgraph_nodes).copy()
+            else:
+                return None, f"未找到包含 '{query_entity}' 的节点"
+        else:
+            # 默认只显示前100个节点，防止浏览器卡死
+            if len(G.nodes) > 100:
+                G = G.subgraph(list(G.nodes())[:100]).copy()
+            else:
+                G = G.copy()
+
+        # 2. 注入时间信息 (此时操作的是副本)
         try:
-            vdb_path = os.path.join(WORKING_DIR, "vdb_entities.json")
+            vdb_path = os.path.join(working_dir, "vdb_entities.json")
             if os.path.exists(vdb_path):
                 with open(vdb_path, 'r', encoding='utf-8') as f:
                     vdb_data = json.load(f)
@@ -175,24 +196,14 @@ def visualize_graph(rag_instance, query_entity=None):
                             
         except Exception as e:
             print(f"Warning: Failed to inject time info: {e}")
-        # ------------------------
 
-        # 子图过滤逻辑
-        if query_entity:
-            # 模糊匹配节点ID
-            nodes = [n for n in G.nodes() if query_entity in str(n)]
-            if nodes:
-                # 提取一跳邻居
-                subgraph_nodes = set(nodes)
-                for n in nodes:
-                    subgraph_nodes.update(G.neighbors(n))
-                G = G.subgraph(subgraph_nodes)
-            else:
-                return None, f"未找到包含 '{query_entity}' 的节点"
-        else:
-            # 默认只显示前100个节点，防止浏览器卡死
-            if len(G.nodes) > 100:
-                G = G.subgraph(list(G.nodes())[:100])
+        # 3. 显式处理边权重 (修复丢失粗细问题)
+        for u, v, data in G.edges(data=True):
+            if "weight" in data:
+                data["width"] = data["weight"]
+                # 也可以设置title显示具体数值
+                if "title" not in data:
+                    data["title"] = f"Weight: {data['weight']}"
 
         # 使用 Pyvis 生成可视化
         net = Network(height="500px", width="100%", bgcolor="#222222", font_color="white")
@@ -201,7 +212,7 @@ def visualize_graph(rag_instance, query_entity=None):
         net.from_nx(G)
         
         # 保存到临时文件
-        path = os.path.join(WORKING_DIR, "temp_graph.html")
+        path = os.path.join(working_dir, "temp_graph.html")
         net.save_graph(path)
         
         with open(path, 'r', encoding='utf-8') as f:
@@ -218,16 +229,37 @@ def main(is_admin, usname):
         with col1:
             st.image(os.path.join("img", "logo.jpg"), width="stretch")
 
-        # --- 新增：深度思考开关 (放在顶部以控制初始化) ---
-        enable_thinking = st.checkbox("启用深度思考 (GLM-4.7)", value=True, help="开启后模型将进行深度推理，回复质量更高但速度较慢。")
-
         st.caption(
             f"""<p align="left">欢迎您，{'管理员' if is_admin else '用户'}{usname}！</p>""",
             unsafe_allow_html=True,
         )
+
+        st.markdown("---")
+        st.subheader("📚 知识库选择")
+        
+        # 扫描 data 目录下的所有子目录
+        if not os.path.exists(DATA_BASE_DIR):
+            os.makedirs(DATA_BASE_DIR)
+        
+        all_items = os.listdir(DATA_BASE_DIR)
+        db_options = [d for d in all_items if os.path.isdir(os.path.join(DATA_BASE_DIR, d))]
+        
+        # 简单的排序，把默认的dickens-0c放在前面如果存在
+        if "dickens-0c" in db_options:
+            db_options.remove("dickens-0c")
+            db_options.insert(0, "dickens-0c")
+            
+        if not db_options:
+            db_options = ["default"]
+            
+        selected_db = st.selectbox("当前使用的知识库:", db_options)
+        working_dir = os.path.join(DATA_BASE_DIR, selected_db)
+        
+        # --- 新增：深度思考开关 (放在顶部以控制初始化) ---
+        enable_thinking = st.checkbox("启用深度思考 (GLM-4.7)", value=True, help="开启后模型将进行深度推理，回复质量更高但速度较慢。")
     
-    # 初始化RAG (带缓存，依赖深度思考开关)
-    rag = init_rag(enable_thinking)
+    # 初始化RAG (带缓存，依赖深度思考开关和working_dir)
+    rag = init_rag(working_dir, enable_thinking)
 
     st.title(f"医疗新闻智能问答系统")
 
@@ -277,7 +309,7 @@ def main(is_admin, usname):
     # 显示图谱 (如果被触发)
     if st.session_state.get('show_graph', False):
         with st.expander("🕸️ 当前知识图谱拓扑结构", expanded=True):
-            html_data, msg = visualize_graph(rag, st.session_state.get('vis_entity'))
+            html_data, msg = visualize_graph(rag, working_dir, st.session_state.get('vis_entity'))
             if html_data:
                 components.html(html_data, height=520, scrolling=True)
             else:
